@@ -1,43 +1,29 @@
 /**
- * Babel Plugin AutoTracer - Versão Mínima
- * 
- * Fluxo:
- * 1. Arquivo é do cliente (/behaviors/ ou /playground/)? Sim -> continua
- * 2. Função não é de biblioteca? Sim -> injeta __trace()
- * 3. Fim.
+ * Babel Plugin AutoTracer - Modo Tracer
+ * Blindado para ignorar Middleware e arquivos fora de /behaviors/
  */
-
 module.exports = function autoTracerPlugin({ types: t }) {
   
   function isClientFile(filename) {
     if (!filename) return false;
     const normalized = filename.replace(/\\/g, '/');
     
-    if (normalized.includes('node_modules')) return false;
-    if (normalized.includes('.next')) return false;
-    
     return normalized.includes('/behaviors/');
   }
 
   function isLibraryFunction(name) {
+    if (!name) return false;
     if (name.length <= 3) return true;
-
     if (name.startsWith('_')) return true;
-
-    // Skip all hooks (use* convention) - but inner functions will still be traced
     if (/^use[A-Z]/.test(name)) return true;
 
     const blocked = [
       'render', 'hydrate', 'createElement', 'forwardRef', 'memo', 'lazy',
       'clsx', 'twMerge', 'classNames'
     ];
-
     return blocked.includes(name);
   }
 
-  /**
-   * Cria: __trace("funcName", { args }, new Error().stack)
-   */
   function createLogStatement(functionName, params) {
     const paramNames = params
       .filter(p => t.isIdentifier(p))
@@ -62,16 +48,12 @@ module.exports = function autoTracerPlugin({ types: t }) {
     );
   }
 
-  /**
-   * Injeta log no início da função
-   */
   function injectLog(path, functionName) {
     if (path.node._traced) return;
     path.node._traced = true;
     
     const body = path.node.body;
     
-    // Arrow function sem bloco
     if (!t.isBlockStatement(body)) {
       path.node.body = t.blockStatement([
         createLogStatement(functionName, path.node.params),
@@ -84,37 +66,34 @@ module.exports = function autoTracerPlugin({ types: t }) {
   }
 
   return {
-    name: 'autotracer',
+    name: 'autotracer-tracer',
     
     visitor: {
       Program(path, state) {
-        const filename = state.filename || '';
-        if (!isClientFile(filename)) {
-          path.stop();
-          return;
+        if (!isClientFile(state.filename)) {
+            path.stop(); 
+            return;
         }
         
         path.node.body.unshift(
           t.importDeclaration(
             [t.importSpecifier(t.identifier('__trace'), t.identifier('__trace'))],
-            t.stringLiteral('@/plugins/autotracer/runtime')
+            t.stringLiteral('@/plugins/tracer/tracer-runtime')
           )
         );
       },
 
-      FunctionDeclaration(path) {
-        const name = path.node.id?.name;
-        if (!name || isLibraryFunction(name)) return;
-        injectLog(path, name);
-      },
+      Function(path, state) {
+        if (!isClientFile(state.filename)) return;
 
-      VariableDeclarator(path) {
-        const { id, init } = path.node;
-        if (!t.isIdentifier(id)) return;
-        if (!t.isArrowFunctionExpression(init) && !t.isFunctionExpression(init)) return;
-        if (isLibraryFunction(id.name)) return;
-        
-        injectLog(path.get('init'), id.name);
+        let funcName = 'anonymous';
+        if (path.node.id) funcName = path.node.id.name;
+        else if (path.parent.id) funcName = path.parent.id.name;
+        else if (path.parent.key) funcName = path.parent.key.name;
+
+        if (isLibraryFunction(funcName)) return;
+
+        injectLog(path, funcName);
       }
     }
   };
