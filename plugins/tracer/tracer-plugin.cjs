@@ -24,7 +24,7 @@ module.exports = function autoTracerPlugin({ types: t }) {
     return blocked.includes(name);
   }
 
-  function createLogStatement(functionName, params) {
+  function createLogStatement(functionName, params, sourceFile) {
     const paramNames = params
       .filter(p => t.isIdentifier(p))
       .map(p => p.name);
@@ -43,12 +43,12 @@ module.exports = function autoTracerPlugin({ types: t }) {
     return t.expressionStatement(
       t.callExpression(
         t.identifier('__trace'),
-        [t.stringLiteral(functionName), argsObject, stackExpr]
+        [t.stringLiteral(functionName), argsObject, stackExpr, t.stringLiteral(sourceFile)]
       )
     );
   }
 
-  function injectLog(path, functionName) {
+  function injectLog(path, functionName, sourceFile) {
     if (path.node._traced) return;
     path.node._traced = true;
     
@@ -56,13 +56,13 @@ module.exports = function autoTracerPlugin({ types: t }) {
     
     if (!t.isBlockStatement(body)) {
       path.node.body = t.blockStatement([
-        createLogStatement(functionName, path.node.params),
+        createLogStatement(functionName, path.node.params, sourceFile),
         t.returnStatement(body)
       ]);
       return;
     }
     
-    body.body.unshift(createLogStatement(functionName, path.node.params));
+    body.body.unshift(createLogStatement(functionName, path.node.params, sourceFile));
   }
 
   return {
@@ -93,7 +93,7 @@ module.exports = function autoTracerPlugin({ types: t }) {
 
         if (isLibraryFunction(funcName)) return;
 
-        injectLog(path, funcName);
+        injectLog(path, funcName, state.filename);
       }
     }
   };

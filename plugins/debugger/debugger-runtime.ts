@@ -7,7 +7,7 @@ export function __debug_trace(
   scopeSnapshot: Record<string, unknown>
 ) {
   logger.debug({
-    type: 'DEBUG',
+    plugin: 'debugger',
     file,
     line,
     func: funcName,
