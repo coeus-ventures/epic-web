@@ -1,6 +1,6 @@
 {
   "presets": ["next/babel"],
   "plugins": [
-    ["./plugins/autotracer/babel-plugin.cjs"]
+    ["./plugins/dispatcher.cjs"]
   ]
 }
