@@ -6,14 +6,14 @@
 
 ```
 +-------------------------------------+
-|          FRONTEND LAYER             |
+|        PRESENTATION LAYER           |
 |   Components -> Hooks -> States     |
 |          (Browser)                  |
 +-------------------------------------+
               |
               v
 +-------------------------------------+
-|         BACKEND LAYER               |
+|       ORCHESTRATION LAYER           |
 |   Actions + Routes + Workflows      |
 |          (Server)                   |
 +-------------------------------------+
@@ -32,7 +32,7 @@
 
 ## Layer Responsibilities
 
-### Frontend Layer (Browser)
+### Presentation Layer (Browser)
 
 | Component | Responsibility |
 |-----------|----------------|
@@ -46,7 +46,7 @@
 
 ---
 
-### Backend Layer (Server)
+### Orchestration Layer (Server)
 
 | Component | Responsibility |
 |-----------|----------------|
@@ -77,10 +77,10 @@ The Infrastructure layer handles all communication with the external world: data
 
 ## One-Way Data Flow
 
-- **Infrastructure** never calls **Backend** or **Frontend**
-- **Backend** never calls **Frontend**
-- **Frontend** Components never contain server code or manage atoms directly
-- **Frontend** Hooks never touch the database directly
+- **Infrastructure** never calls **Orchestration** or **Presentation**
+- **Orchestration** never calls **Presentation**
+- **Presentation** Components never contain server code or manage atoms directly
+- **Presentation** Hooks never touch the database directly
 
 ```
 Component -> Hook -> Action -> Integration -> Database
@@ -172,10 +172,10 @@ Violations:
 
 ## Import Rules Summary
 
-| From / To | Frontend | Backend | Infrastructure |
-|-----------|----------|---------|----------------|
-| **Frontend** | Yes | Yes (Actions only) | No |
-| **Backend** | No | Yes | Yes |
+| From / To | Presentation | Orchestration | Infrastructure |
+|-----------|--------------|---------------|----------------|
+| **Presentation** | Yes | Yes (Actions only) | No |
+| **Orchestration** | No | Yes | Yes |
 | **Infrastructure** | No | No | Yes |
 
 ---
