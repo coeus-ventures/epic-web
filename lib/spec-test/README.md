@@ -225,6 +225,12 @@ interface SpecTestConfig {
 
   /** Additional Stagehand options */
   stagehandOptions?: Record<string, unknown>;
+
+  /** Directory for Stagehand action cache (enables caching when set) */
+  cacheDir?: string;
+
+  /** Create subdirectory per spec name (default: false) */
+  cachePerSpec?: boolean;
 }
 ```
 
@@ -235,6 +241,64 @@ interface SpecTestConfig {
 | `OPENAI_API_KEY` | Required for Stagehand and semantic checks |
 | `BASE_URL` | Override default application URL |
 | `BROWSERBASE_API_KEY` | For cloud browser execution |
+| `CACHE_DIR` | Enable caching with specified directory |
+| `CLEAR_CACHE` | Set to "true" to clear cache before running |
+
+## Caching
+
+Stagehand has built-in caching that dramatically improves performance:
+
+- **First run**: Uses LLM inference (~30 seconds per action, ~50k tokens)
+- **Subsequent runs**: Uses cached actions (~3 seconds per action, 0 tokens)
+- **Self-healing**: If cached action fails (page changed), automatically re-infers
+
+### Enable Caching
+
+```typescript
+const runner = new SpecTestRunner({
+  baseUrl: 'http://localhost:8080',
+  cacheDir: './cache/e2e-tests',
+});
+
+// First run: ~30s per action (LLM inference)
+await runner.runFromFile('./docs/specs/login.md');
+
+// Second run: ~3s per action (cached)
+await runner.runFromFile('./docs/specs/login.md');
+```
+
+### Per-Spec Caching
+
+```typescript
+const runner = new SpecTestRunner({
+  baseUrl: 'http://localhost:8080',
+  cacheDir: './cache',
+  cachePerSpec: true,
+});
+
+// Creates ./cache/login/
+await runner.runFromFile('./docs/specs/login.md');
+
+// Creates ./cache/create-project/
+await runner.runFromFile('./docs/specs/create-project.md');
+```
+
+### Clear Cache
+
+```typescript
+// Clear cache when page structure changes
+runner.clearCache();
+```
+
+### CLI Usage
+
+```bash
+# Run with caching
+CACHE_DIR=./cache bun lib/spec-test/tests/run-spec.ts docs/specs/login.md
+
+# Clear cache and run fresh
+CLEAR_CACHE=true CACHE_DIR=./cache bun lib/spec-test/tests/run-spec.ts docs/specs/login.md
+```
 
 ## Result Types
 

@@ -2,7 +2,11 @@
 
 A user can log into the application with their email and password.
 
-## Steps
+## Examples
+
+### Login with valid credentials
+
+#### Steps
 * Act: User navigates to /login
 * Act: User enters "user@example.com" in email field
 * Act: User enters "password123" in password field

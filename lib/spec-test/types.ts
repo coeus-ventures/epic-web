@@ -17,6 +17,17 @@ export interface SpecTestConfig {
   browserbaseApiKey?: string;
   /** Use headless browser (default: true) */
   headless?: boolean;
+  /**
+   * Directory for Stagehand action cache.
+   * When set, enables caching for 10-100x faster subsequent runs with zero token cost.
+   * Stagehand auto-generates cache keys from instruction + URL.
+   */
+  cacheDir?: string;
+  /**
+   * Create subdirectory per spec name (default: false).
+   * When true, cache path becomes: {cacheDir}/{spec-name}/
+   */
+  cachePerSpec?: boolean;
 }
 
 /**

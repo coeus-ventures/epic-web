@@ -1,4 +1,6 @@
 import { readFile } from "fs/promises";
+import { existsSync, rmSync } from "fs";
+import path from "path";
 import type { Page } from "playwright";
 import type { Stagehand } from "@browserbasehq/stagehand";
 import type { Tester } from "@/lib/b-test";
@@ -490,9 +492,45 @@ export class SpecTestRunner {
   private config: SpecTestConfig;
   private stagehand: Stagehand | null = null;
   private tester: Tester | null = null;
+  private currentSpec: TestableSpec | null = null;
 
   constructor(config: SpecTestConfig) {
     this.config = config;
+  }
+
+  /**
+   * Get the cache directory path for Stagehand.
+   * Returns undefined if caching is not enabled.
+   *
+   * @param spec - Optional spec to use for per-spec cache directories
+   * @returns Cache directory path or undefined
+   */
+  private getCacheDir(spec?: TestableSpec): string | undefined {
+    if (!this.config.cacheDir) {
+      return undefined;
+    }
+
+    if (this.config.cachePerSpec && spec) {
+      // Sanitize spec name for filesystem: lowercase, replace non-alphanumeric with dash
+      const safeName = spec.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      return path.join(this.config.cacheDir, safeName);
+    }
+
+    return this.config.cacheDir;
+  }
+
+  /**
+   * Clear the cache directory to force fresh LLM inference.
+   * Useful when page structure has changed significantly.
+   */
+  clearCache(): void {
+    if (!this.config.cacheDir) {
+      return;
+    }
+
+    if (existsSync(this.config.cacheDir)) {
+      rmSync(this.config.cacheDir, { recursive: true, force: true });
+    }
   }
 
   /**
@@ -508,10 +546,12 @@ export class SpecTestRunner {
     const { Tester } = await import("@/lib/b-test");
 
     const isLocal = !this.config.browserbaseApiKey;
+    const cacheDir = this.getCacheDir(this.currentSpec ?? undefined);
 
     this.stagehand = new Stagehand({
       env: isLocal ? "LOCAL" : "BROWSERBASE",
       apiKey: this.config.browserbaseApiKey,
+      cacheDir, // Pass cache directory for action caching
       localBrowserLaunchOptions: isLocal
         ? { headless: this.config.headless ?? true }
         : undefined,
@@ -555,6 +595,9 @@ export class SpecTestRunner {
    */
   async runFromSpec(spec: TestableSpec, exampleName?: string): Promise<SpecTestResult> {
     const startTime = Date.now();
+
+    // Set current spec for cache directory resolution before initialize
+    this.currentSpec = spec;
 
     // Filter examples to run
     const examplesToRun = exampleName

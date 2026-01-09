@@ -1,10 +1,11 @@
-import { describe, it, expect, vi } from "vitest";
-import { parseSteps, parseSpecFile, classifyCheck, executeActStep, executeCheckStep, generateFailureContext } from "../index";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { parseSteps, parseSpecFile, classifyCheck, executeActStep, executeCheckStep, generateFailureContext, SpecTestRunner } from "../index";
 import path from "path";
 import type { Stagehand } from "@browserbasehq/stagehand";
 import type { Page } from "playwright";
 import type { Tester } from "@/lib/b-test";
-import type { SpecStep } from "../types";
+import type { SpecStep, TestableSpec } from "../types";
+import { existsSync, mkdirSync, writeFileSync, rmSync } from "fs";
 
 describe("parseSteps", () => {
   it("should parse Act steps from markdown content", () => {
@@ -158,23 +159,25 @@ describe("parseSpecFile", () => {
     expect(spec.name).toBe("Login");
   });
 
-  it("should parse spec file and extract steps", async () => {
+  it("should parse spec file and extract examples with steps", async () => {
     const fixturePath = path.join(__dirname, "fixtures", "sample-spec.md");
     const spec = await parseSpecFile(fixturePath);
 
-    expect(spec.steps).toHaveLength(6);
-    expect(spec.steps[0]).toEqual({
+    expect(spec.examples).toHaveLength(1);
+    expect(spec.examples[0].name).toBe("Login with valid credentials");
+    expect(spec.examples[0].steps).toHaveLength(6);
+    expect(spec.examples[0].steps[0]).toEqual({
       type: "act",
       instruction: "User navigates to /login",
       lineNumber: expect.any(Number),
     });
-    expect(spec.steps[4]).toEqual({
+    expect(spec.examples[0].steps[4]).toEqual({
       type: "check",
       instruction: "URL contains /dashboard",
       checkType: "deterministic",
       lineNumber: expect.any(Number),
     });
-    expect(spec.steps[5]).toEqual({
+    expect(spec.examples[0].steps[5]).toEqual({
       type: "check",
       instruction: "Welcome message is displayed",
       checkType: "semantic",
@@ -442,5 +445,114 @@ describe("generateFailureContext", () => {
     const context = await generateFailureContext(mockPage, step, error);
 
     expect(context.suggestions.length).toBeGreaterThan(0);
+  });
+});
+
+describe("Caching Configuration", () => {
+  const testCacheDir = "./test-cache-temp";
+
+  afterEach(() => {
+    // Clean up test cache directory
+    if (existsSync(testCacheDir)) {
+      rmSync(testCacheDir, { recursive: true, force: true });
+    }
+  });
+
+  it("should return cacheDir when configured", () => {
+    const runner = new SpecTestRunner({
+      baseUrl: "http://localhost:8080",
+      cacheDir: "./cache/tests",
+    });
+
+    // Access private method via type assertion
+    const getCacheDir = (runner as unknown as { getCacheDir: (spec?: TestableSpec) => string | undefined }).getCacheDir;
+    expect(getCacheDir.call(runner)).toBe("./cache/tests");
+  });
+
+  it("should return undefined when cacheDir not configured", () => {
+    const runner = new SpecTestRunner({
+      baseUrl: "http://localhost:8080",
+    });
+
+    const getCacheDir = (runner as unknown as { getCacheDir: (spec?: TestableSpec) => string | undefined }).getCacheDir;
+    expect(getCacheDir.call(runner)).toBeUndefined();
+  });
+
+  it("should create per-spec cache directory when cachePerSpec is true", () => {
+    const runner = new SpecTestRunner({
+      baseUrl: "http://localhost:8080",
+      cacheDir: "./cache",
+      cachePerSpec: true,
+    });
+
+    const spec: TestableSpec = {
+      name: "Login Flow",
+      examples: [],
+    };
+
+    const getCacheDir = (runner as unknown as { getCacheDir: (spec?: TestableSpec) => string | undefined }).getCacheDir;
+    expect(getCacheDir.call(runner, spec)).toMatch(/cache[/\\]login-flow$/);
+  });
+
+  it("should sanitize spec name for filesystem", () => {
+    const runner = new SpecTestRunner({
+      baseUrl: "http://localhost:8080",
+      cacheDir: "./cache",
+      cachePerSpec: true,
+    });
+
+    const spec: TestableSpec = {
+      name: "Create Project (with spaces & symbols!)",
+      examples: [],
+    };
+
+    const getCacheDir = (runner as unknown as { getCacheDir: (spec?: TestableSpec) => string | undefined }).getCacheDir;
+    const result = getCacheDir.call(runner, spec);
+    expect(result).toMatch(/cache[/\\]create-project-with-spaces-symbols-$/);
+  });
+});
+
+describe("Cache Management", () => {
+  const testCacheDir = "./test-cache-mgmt-temp";
+
+  afterEach(() => {
+    // Clean up test cache directory
+    if (existsSync(testCacheDir)) {
+      rmSync(testCacheDir, { recursive: true, force: true });
+    }
+  });
+
+  it("should clear cache directory when clearCache is called", () => {
+    // Create a test cache directory with a file
+    mkdirSync(testCacheDir, { recursive: true });
+    writeFileSync(`${testCacheDir}/test-file.json`, "{}");
+
+    const runner = new SpecTestRunner({
+      baseUrl: "http://localhost:8080",
+      cacheDir: testCacheDir,
+    });
+
+    expect(existsSync(testCacheDir)).toBe(true);
+
+    runner.clearCache();
+
+    expect(existsSync(testCacheDir)).toBe(false);
+  });
+
+  it("should not throw when clearing non-existent cache", () => {
+    const runner = new SpecTestRunner({
+      baseUrl: "http://localhost:8080",
+      cacheDir: "./non-existent-cache-12345",
+    });
+
+    expect(() => runner.clearCache()).not.toThrow();
+  });
+
+  it("should not throw when cacheDir is not configured", () => {
+    const runner = new SpecTestRunner({
+      baseUrl: "http://localhost:8080",
+    });
+
+    expect(() => runner.clearCache()).not.toThrow();
   });
 });

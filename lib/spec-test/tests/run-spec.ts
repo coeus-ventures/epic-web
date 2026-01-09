@@ -6,10 +6,21 @@
  * Usage:
  *   bun lib/spec-test/tests/run-spec.ts [spec-file] [example-name]
  *
+ * Environment Variables:
+ *   BASE_URL     - Application URL (default: http://localhost:8080)
+ *   CACHE_DIR    - Enable caching with specified directory (10-100x faster on subsequent runs)
+ *   CLEAR_CACHE  - Set to "true" to clear cache before running
+ *
  * Examples:
  *   bun lib/spec-test/tests/run-spec.ts                                          # Run sample spec
  *   bun lib/spec-test/tests/run-spec.ts docs/specs/login.md                      # Run all examples
  *   bun lib/spec-test/tests/run-spec.ts docs/specs/login.md "Login with email"   # Run specific example
+ *
+ *   # With caching (10-100x faster on subsequent runs):
+ *   CACHE_DIR=./cache bun lib/spec-test/tests/run-spec.ts docs/specs/login.md
+ *
+ *   # Clear cache and re-run:
+ *   CLEAR_CACHE=true CACHE_DIR=./cache bun lib/spec-test/tests/run-spec.ts docs/specs/login.md
  *
  * Requirements:
  *   - App running on http://localhost:8080 (or set BASE_URL env)
@@ -22,6 +33,8 @@ import path from "path";
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:8080";
 const SPEC_FILE = process.argv[2] ?? path.join(__dirname, "fixtures", "login-spec.md");
 const EXAMPLE_NAME = process.argv[3]; // Optional: run specific example
+const CACHE_DIR = process.env.CACHE_DIR;
+const CLEAR_CACHE = process.env.CLEAR_CACHE === "true";
 
 async function main() {
   console.log("=".repeat(60));
@@ -31,6 +44,9 @@ async function main() {
   console.log(`Spec file: ${SPEC_FILE}`);
   if (EXAMPLE_NAME) {
     console.log(`Example: ${EXAMPLE_NAME}`);
+  }
+  if (CACHE_DIR) {
+    console.log(`Cache: ${CACHE_DIR}${CLEAR_CACHE ? " (will be cleared)" : ""}`);
   }
   console.log();
 
@@ -57,14 +73,28 @@ async function main() {
     console.log();
   });
 
-  // Create runner
+  // Create runner with caching support
   const runner = new SpecTestRunner({
     baseUrl: BASE_URL,
     headless: false, // Show browser for debugging
+    cacheDir: CACHE_DIR,
   });
+
+  // Clear cache if requested
+  if (CLEAR_CACHE && CACHE_DIR) {
+    console.log("Clearing cache...");
+    runner.clearCache();
+    console.log("Cache cleared.");
+    console.log();
+  }
 
   try {
     console.log("Starting browser...");
+    if (CACHE_DIR) {
+      console.log("(Using cached actions if available - first run will be slower)");
+    }
+    console.log();
+
     const result = await runner.runFromSpec(spec, EXAMPLE_NAME);
 
     console.log();
@@ -126,6 +156,9 @@ async function main() {
     const failed = result.exampleResults.filter(r => !r.success).length;
     console.log("=".repeat(60));
     console.log(`Summary: ${passed} passed, ${failed} failed`);
+    if (CACHE_DIR) {
+      console.log(`Cache: ${CACHE_DIR} (subsequent runs will be faster)`);
+    }
     console.log("=".repeat(60));
 
     process.exit(result.success ? 0 : 1);
