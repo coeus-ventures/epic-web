@@ -1,6 +1,18 @@
-import type { Page } from "playwright";
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
+
+/**
+ * Generic page interface that works with both Playwright and Stagehand pages.
+ * Uses the common subset of methods available in both.
+ */
+interface GenericPage {
+  url(): string;
+  // Playwright uses content(), Stagehand uses mainFrame().evaluate()
+  content?: () => Promise<string>;
+  mainFrame?: () => { evaluate: <R>(fn: () => R) => Promise<R> };
+  // Playwright's accessibility
+  accessibility?: { snapshot: () => Promise<unknown> };
+}
 
 export interface Snapshot {
   id: string;
@@ -28,8 +40,8 @@ export class TesterError extends Error {
 }
 
 /**
- * Playwright-based testing service that captures HTML snapshots and uses LLM-powered assertions
- * to verify page conditions.
+ * Testing service that captures HTML snapshots and uses LLM-powered assertions
+ * to verify page conditions. Works with both Playwright and Stagehand pages.
  */
 export class Tester {
   private snapshots: Map<string, Snapshot> = new Map();
@@ -39,17 +51,30 @@ export class Tester {
   private snapshotCounter: number = 0;
 
   constructor(
-    private readonly page?: Page,
+    private readonly page?: GenericPage,
     private readonly aiModel = openai("gpt-4o-mini")
   ) {}
 
   /**
-   * Captures current page HTML using Playwright
-   * @param page - Optional Playwright page to snapshot (uses constructor page if not provided)
+   * Gets page HTML content - supports both Playwright and Stagehand pages.
+   */
+  private async getPageContent(page: GenericPage): Promise<string> {
+    if (typeof page.content === "function") {
+      return page.content();
+    } else if (typeof page.mainFrame === "function") {
+      return page.mainFrame().evaluate(() => document.documentElement.outerHTML);
+    }
+    throw new Error("Page does not support content() or mainFrame().evaluate()");
+  }
+
+  /**
+   * Captures current page HTML.
+   * Works with both Playwright pages (content()) and Stagehand pages (mainFrame().evaluate()).
+   * @param page - Optional page to snapshot (uses constructor page if not provided)
    * @returns Success boolean and snapshot ID
    */
   async snapshot(
-    page?: Page
+    page?: GenericPage
   ): Promise<{ success: boolean; snapshotId: string }> {
     const targetPage = page || this.page;
 
@@ -58,8 +83,8 @@ export class Tester {
     }
 
     try {
-      // Capture HTML content of entire page
-      const html = await targetPage.content();
+      // Capture HTML content - support both Playwright and Stagehand pages
+      const html = await this.getPageContent(targetPage);
       const url = targetPage.url();
       const timestamp = Date.now();
       const snapshotId = `snapshot_${++this.snapshotCounter}_${timestamp}`;
@@ -179,6 +204,7 @@ Based on these changes, is this condition met? (respond with true/false and expl
 
       try {
         if (!this.page) throw new Error("No page available");
+        if (!this.page.accessibility) throw new Error("Accessibility not available");
 
         // We need to capture the current accessibility tree as "after"
         afterAccessibility = await this.page.accessibility.snapshot();
@@ -279,8 +305,8 @@ Based on these changes, is this condition met? (respond with true/false and expl
 
     while (Date.now() - startTime < timeout) {
       try {
-        // Capture current HTML
-        const currentHtml = await this.page.content();
+        // Capture current HTML - support both Playwright and Stagehand pages
+        const currentHtml = await this.getPageContent(this.page);
 
         // Only check condition if page has changed
         if (currentHtml !== lastHtml) {
