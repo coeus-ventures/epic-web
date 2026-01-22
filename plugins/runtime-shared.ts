@@ -1,17 +1,57 @@
-import pino from 'pino';
+// Simple logger that works in both server and client environments
+// Uses console.log in browser, and can be extended to use pino on server if needed
+const isServer = typeof window === 'undefined';
 
-export const logger = pino({
-  level: 'trace', // Enable all levels (trace=10, debug=20, etc.)
-  browser: {
-    asObject: true,
-    serialize: true,
-  },
-  base: null, // Remove pid e hostname (ruído)
-  timestamp: pino.stdTimeFunctions.isoTime,
-  formatters: {
-    level: (_label, number) => ({ level: number }),
-  },
-});
+interface LogLevel {
+  trace: (obj: Record<string, unknown>) => void;
+  debug: (obj: Record<string, unknown>) => void;
+  info: (obj: Record<string, unknown>) => void;
+  warn: (obj: Record<string, unknown>) => void;
+  error: (obj: Record<string, unknown>) => void;
+}
+
+const createLogger = (): LogLevel => {
+  const formatMessage = (level: string, obj: Record<string, unknown>) => {
+    const timestamp = new Date().toISOString();
+    return {
+      level,
+      timestamp,
+      ...obj,
+    };
+  };
+
+  return {
+    trace: (obj: Record<string, unknown>) => {
+      // Only log trace in development (check safely for both server and client)
+      const shouldLog = isServer 
+        ? (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production')
+        : true; // Always log in browser for debugging
+      if (shouldLog) {
+        console.trace('[TRACE]', formatMessage('trace', obj));
+      }
+    },
+    debug: (obj: Record<string, unknown>) => {
+      // Only log debug in development (check safely for both server and client)
+      const shouldLog = isServer 
+        ? (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production')
+        : true; // Always log in browser for debugging
+      if (shouldLog) {
+        console.debug('[DEBUG]', formatMessage('debug', obj));
+      }
+    },
+    info: (obj: Record<string, unknown>) => {
+      console.info('[INFO]', formatMessage('info', obj));
+    },
+    warn: (obj: Record<string, unknown>) => {
+      console.warn('[WARN]', formatMessage('warn', obj));
+    },
+    error: (obj: Record<string, unknown>) => {
+      console.error('[ERROR]', formatMessage('error', obj));
+    },
+  };
+};
+
+export const logger = createLogger();
 
 export function sanitizeValue(value: unknown, depth = 0): unknown {
   if (depth > 2) return '[Max Depth Reached]';

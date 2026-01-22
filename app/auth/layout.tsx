@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { getUser } from "@/lib/auth";
-import { signOut } from "./behaviors/signout/actions/signout";
+import { signOut } from "@/shared/behaviors/signout/actions/signout";
 import { AuthHeader } from "./components/auth-header";
 
 export default async function AuthLayout({

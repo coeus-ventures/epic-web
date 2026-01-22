@@ -16,7 +16,7 @@ export function useSignIn(redirectURL: string): UseSignInReturn {
     (prevState: SignInState, formData: FormData) =>
       signIn(prevState, formData, redirectURL),
     { error: null }
-  ) as [SignInState, (formData: FormData) => void, boolean];
+  );
 
   return {
     state,
