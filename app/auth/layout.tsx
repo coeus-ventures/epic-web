@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { getUser } from "@/lib/auth";
-import { signOut } from "@/shared/behaviors/signout/actions/signout";
+import { redirect } from "next/navigation";
+import { HOME_URL } from "@/app.config";
 import { AuthHeader } from "./components/auth-header";
 
 export default async function AuthLayout({
@@ -11,7 +12,7 @@ export default async function AuthLayout({
   const { user } = await getUser();
 
   if (user) {
-    await signOut(false);
+    redirect(HOME_URL);
   }
 
   return (
