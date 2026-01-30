@@ -15,7 +15,14 @@ export const auth = betterAuth({
     }),
     magicLink({
       expiresIn: 300, // 5 minutes
-      // No custom sendMagicLink - Better Auth stores token in verification table
+      // No-op sendMagicLink - token is stored in verification table
+      // and can be retrieved directly for preview auto-login
+      sendMagicLink: async ({ email, token, url }) => {
+        // In preview/sandbox context, we don't send emails
+        // The token is automatically stored in the verification table
+        // and can be retrieved for auto-login flows
+        console.log(`[Magic Link] Generated for ${email}`);
+      },
     }),
     nextCookies(),
   ], // make sure nextCookies is the last plugin in the array
