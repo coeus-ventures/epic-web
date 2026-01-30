@@ -19,6 +19,7 @@ pnpm-lock.yaml
 /coverage
 /test-results/
 /playwright-report/
+/playwright/.auth/
 
 # next.js
 /.next/
