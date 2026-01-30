@@ -1,47 +1,48 @@
 import "@testing-library/jest-dom/vitest";
-import dotenv from "dotenv";
+import { expand } from "dotenv-expand";
+import { config } from "dotenv";
+import { beforeAll, beforeEach, vi } from "vitest";
 
-// Load environment variables based on NODE_ENV
-dotenv.config({ path: ".env", quiet: true });
-if (process.env.NODE_ENV === "test") {
-  dotenv.config({ path: ".env.test", override: true, quiet: true });
-} else if (process.env.NODE_ENV === "production") {
-  dotenv.config({ path: ".env.production", override: true, quiet: true });
-}
+// Load .env, then overlay .env.test
+expand(config({ path: ".env" }));
+expand(config({ path: ".env.test", override: true }));
 
-// Set required environment variables for tests if not already set
-// IMPORTANT: These must be set BEFORE any Better Auth imports
-if (!process.env.NEXT_PUBLIC_BASE_URL) {
-  process.env.NEXT_PUBLIC_BASE_URL = "http://localhost:8080";
-}
-if (!process.env.BETTER_AUTH_URL) {
-  process.env.BETTER_AUTH_URL = "http://localhost:8080";
-}
-if (!process.env.BETTER_AUTH_SECRET) {
-  // Generate a test secret if not provided (must be at least 32 chars)
-  process.env.BETTER_AUTH_SECRET =
-    "test-secret-key-for-testing-only-32-chars-min";
-}
+// Use in-memory database for unit tests (each fork gets isolated DB)
+process.env.DATABASE_URL = ":memory:";
 
-// Database setup and cleanup for tests
-import { beforeAll } from "vitest";
+// Import db after setting DATABASE_URL
+import { sql } from "drizzle-orm";
 import { db } from "@/db";
-import { migrate } from "drizzle-orm/libsql/migrator";
+import * as schema from "@/db/schema";
 
-// Run migrations for in-memory database
-// Uses the same migrations as dev/production (Rails-style single migration folder)
-// For in-memory databases, if tables already exist, the migration will fail gracefully
+// Mock server-only package (used by Next.js server actions)
+vi.mock("server-only", () => ({}));
+
+// Set required environment variables for Better Auth
+process.env.NEXT_PUBLIC_BASE_URL ??= "http://localhost:8080";
+process.env.BETTER_AUTH_URL ??= "http://localhost:8080";
+process.env.BETTER_AUTH_SECRET ??= "test-secret-key-for-testing-only-32-chars-min";
+
+// Extract table names from Drizzle schema
+const TABLE_SYMBOL = Symbol.for("drizzle:IsDrizzleTable");
+const NAME_SYMBOL = Symbol.for("drizzle:Name");
+
+const tableNames = Object.values(schema)
+  .filter((t): t is Record<symbol, unknown> => !!(t as Record<symbol, unknown>)?.[TABLE_SYMBOL])
+  .map((t) => t[NAME_SYMBOL] as string);
+
+// Push schema before all tests
 beforeAll(async () => {
-  try {
-    await migrate(db, { migrationsFolder: "db/migrations" });
-  } catch (error: unknown) {
-    // If migration fails because tables already exist, that's okay for in-memory DB
-    // The error "table already exists" is expected when reusing connections
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    if (!errorMessage.includes("already exists")) {
-      // Re-throw if it's a different error
-      throw error;
-    }
-    // Silently ignore "table already exists" errors for in-memory databases
+  const { pushSQLiteSchema } = await import("drizzle-kit/api");
+  const { apply } = await pushSQLiteSchema(schema, db);
+  await apply();
+}, 20000);
+
+// Clean all tables before each test
+beforeEach(async () => {
+  await db.run(sql`PRAGMA foreign_keys = OFF`);
+  for (const name of tableNames) {
+    await db.run(sql.raw(`DELETE FROM "${name}"`));
   }
+  await db.run(sql`PRAGMA foreign_keys = ON`);
 });
