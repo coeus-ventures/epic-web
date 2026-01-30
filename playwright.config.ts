@@ -21,6 +21,7 @@ export default defineConfig({
   use: {
     baseURL,
     trace: 'on-first-retry',
+    headless: true, // Run in headless mode (no browser UI)
   },
 
   projects: [
@@ -35,15 +36,18 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/user.json', // Use saved auth
+        storageState: 'playwright/.auth/user.json',
       },
-      dependencies: ['setup'], // Run setup first
+      dependencies: ['setup'],
     },
   ],
 
   webServer: {
-    command: 'bun run dev',
+    command: 'NODE_ENV=test bun run dev',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
+    env: {
+      NODE_ENV: 'test',
+    },
   },
 });
