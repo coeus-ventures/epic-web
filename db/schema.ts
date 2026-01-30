@@ -70,27 +70,3 @@ export const verification = sqliteTable("verification", {
 
 export type InsertVerification = typeof verification.$inferInsert;
 export type SelectVerification = typeof verification.$inferSelect;
-
-export const authTokens = sqliteTable("auth_tokens", {
-  token: text("token").primaryKey(),
-  email: text("email").notNull(),
-  callbackUrl: text("callback_url"),
-  uaHash: text("ua_hash"),
-  expiresAt: integer("expires_at").notNull(), // Unix timestamp in milliseconds
-  consumedAt: integer("consumed_at"), // Unix timestamp in milliseconds
-  createdAt: integer("created_at").notNull(), // Unix timestamp in milliseconds
-});
-
-export type InsertAuthToken = typeof authTokens.$inferInsert;
-export type SelectAuthToken = typeof authTokens.$inferSelect;
-
-export const magicLinks = sqliteTable("magic_links", {
-  cid: text("cid").primaryKey(),
-  email: text("email").notNull(),
-  verifyUrl: text("verify_url").notNull(),
-  expiresAt: integer("expires_at").notNull(), // Unix timestamp in milliseconds
-  createdAt: integer("created_at").notNull(), // Unix timestamp in milliseconds
-});
-
-export type InsertMagicLink = typeof magicLinks.$inferInsert;
-export type SelectMagicLink = typeof magicLinks.$inferSelect;

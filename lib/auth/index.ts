@@ -7,7 +7,6 @@ import { cache } from "react";
 import { headers } from "next/headers";
 import { admin } from "better-auth/plugins";
 import { magicLink } from "better-auth/plugins";
-import { MagicLink } from "@/shared/models/magic-link";
 
 export const auth = betterAuth({
   plugins: [
@@ -16,42 +15,7 @@ export const auth = betterAuth({
     }),
     magicLink({
       expiresIn: 300, // 5 minutes
-      // Capture the magic link URL instead of sending email
-      sendMagicLink: async ({ email, url }) => {
-        let finalUrl = url;
-
-        const headersList = await headers();
-        const host = headersList.get("host");
-
-        if (host && !host.includes("localhost")) {
-          finalUrl = url.replace(/https?:\/\/[^\/]+/, `https://${host}`);
-        }
-
-        const u = new URL(finalUrl);
-        const callbackURL = u.searchParams.get("callbackURL");
-
-        let cid: string | null = null;
-        if (callbackURL) {
-          const callbackU = new URL(callbackURL);
-          cid = callbackU.searchParams.get("cid");
-        }
-
-        if (!cid) {
-          console.error("Missing correlation ID in magic link callback URL");
-          return;
-        }
-
-        try {
-          await MagicLink.upsert(
-            cid,
-            email,
-            finalUrl,
-            Date.now() + 5 * 60 * 1000 // 5 minutes
-          );
-        } catch (error) {
-          console.error("Failed to store magic link:", error);
-        }
-      },
+      // No custom sendMagicLink - Better Auth stores token in verification table
     }),
     nextCookies(),
   ], // make sure nextCookies is the last plugin in the array
