@@ -9,7 +9,10 @@ if (process.env.NODE_ENV === 'test') {
   dotenv.config({ path: '.env.production', override: true, quiet: true });
 }
 
-const baseURL = process.env.BASE_URL || 'http://localhost:8080';
+// For tests, use port 3001, otherwise use port 8080
+const baseURL = process.env.NODE_ENV === 'test'
+  ? 'http://localhost:3001'
+  : (process.env.BASE_URL || 'http://localhost:8080');
 
 export default defineConfig({
   testMatch: '**/*.spec.ts',
@@ -43,11 +46,13 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'NODE_ENV=test bun run dev',
+    command: 'rm -f .next/dev/lock && NODE_ENV=test NEXT_BUILD_ID=test next dev -p 3001 --turbopack',
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
+    timeout: 120000,
     env: {
       NODE_ENV: 'test',
+      NEXT_BUILD_ID: 'test',
     },
   },
 });

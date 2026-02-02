@@ -3,8 +3,6 @@ import { db } from "@/db";
 import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-const baseUrl = "http://localhost:8080";
-
 // Override storage state to test unauthenticated signup flow
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -12,7 +10,7 @@ test.describe("Signup Flow", () => {
   const createdEmails: string[] = [];
 
   test.beforeEach(async ({ page }) => {
-    await page.goto(`${baseUrl}/auth/signup`);
+    await page.goto("/auth/signup");
   });
 
   test.afterEach(async () => {
@@ -43,9 +41,9 @@ test.describe("Signup Flow", () => {
     await page.locator('button[type="submit"]').click();
 
     // Should redirect to dashboard after successful signup
-    await page.waitForURL(`${baseUrl}/home`, { timeout: 10000 });
+    await page.waitForURL("/home", { timeout: 10000 });
 
     // Verify we're on the dashboard
-    expect(page.url()).toBe(`${baseUrl}/home`);
+    expect(page.url()).toContain("/home");
   });
 });
