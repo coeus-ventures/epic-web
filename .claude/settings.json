@@ -22,5 +22,5 @@
     "autoAllowBashIfSandboxed": true
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": ["next-devtools", "playwright"]
+  "enabledMcpjsonServers": ["next-devtools"]
 }
