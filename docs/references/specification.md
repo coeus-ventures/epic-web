@@ -230,9 +230,9 @@ A behavior specification consists of:
 3. The behavior directory
 4. A **Dependencies** section (optional) - ordered list of prerequisite behaviors
 5. A **Rules** section - named rules with When/Then conditions
-6. An **Examples** section - concrete scenarios demonstrating the behavior
+6. A **Scenarios** section - concrete scenarios demonstrating the behavior
 
-Each example may include:
+Each scenario may include:
 - **PreDB** (optional) - system state before the behavior
 - **Steps** (required) - actions and verifications
 - **PostDB** (optional) - system state after the behavior
@@ -250,13 +250,13 @@ The optional Dependencies section lists behaviors that must be completed before 
 - Test generation (ensuring setup steps are run)
 - Understanding behavior ordering in the system
 
-Dependencies are listed as an ordered list of behavior names:
+Dependencies are listed as an ordered list of behaviors with their specific scenario:
 
 ```markdown
 ## Dependencies
 
-1. Create Project
-2. View Project
+1. Create Project: User creates a new project successfully
+2. View Project: User views project details
 ```
 
 ### Example
@@ -303,7 +303,7 @@ Directory: `pages/projects/behaviors/create-project/`
   - Status defaults to "draft"
   - Created timestamp is set
 
-## Examples
+## Scenarios
 
 ### User creates a new project successfully
 
@@ -358,8 +358,8 @@ Directory: `pages/projects/behaviors/add-team-member/`
 
 ## Dependencies
 
-1. Create Project
-2. View Project
+1. Create Project: User creates a new project successfully
+2. View Project: User views project details
 
 ## Rules
 
@@ -375,7 +375,7 @@ Directory: `pages/projects/behaviors/add-team-member/`
 - Then:
   - Reject with "Only the project owner can add members"
 
-## Examples
+## Scenarios
 
 ### Owner adds team member successfully
 
@@ -405,7 +405,7 @@ id, project_id, user_id
 1, 1, 2
 ```
 
-**Rules** are named declarative constraints with When/Then conditions. Each rule has a descriptive name, a list of conditions (When), and a list of outcomes (Then). Multiple conditions are implicitly AND. For OR logic, create separate rules. **Examples** demonstrate how the behavior plays out in concrete scenarios. Steps focus on **observable behavior**, not implementation details.
+**Rules** are named declarative constraints with When/Then conditions. Each rule has a descriptive name, a list of conditions (When), and a list of outcomes (Then). Multiple conditions are implicitly AND. For OR logic, create separate rules. **Scenarios** demonstrate how the behavior plays out in concrete scenarios. Steps focus on **observable behavior**, not implementation details.
 
 ---
 
@@ -425,7 +425,7 @@ A function specification consists of:
 1. A heading whose title is the **function signature**
 2. A short description
 3. A small set of keywords
-4. Optional **Examples** with PreDB/PostDB (for functions that modify state)
+4. Optional **Scenarios** with PreDB/PostDB (for functions that modify state)
 
 ### Keywords
 
@@ -433,9 +433,9 @@ A function specification consists of:
 - **Returns** - value or outcome returned
 - **Calls** (optional) - direct dependencies
 
-### Examples Section
+### Scenarios Section
 
-For functions that modify database state (like server actions), include examples showing state transitions:
+For functions that modify database state (like server actions), include scenarios showing state transitions:
 
 - **PreDB** - database state before execution (CSV format)
 - **Steps** - function call and expected result using keywords:
@@ -455,7 +455,7 @@ Validates a project name against naming rules.
 - Returns: validation result with errors if invalid
 ```
 
-### Example (Function with State Changes)
+### Scenario (Function with State Changes)
 
 ```markdown
 ## createProject(input: CreateProjectInput): Promise<Project>
@@ -466,7 +466,7 @@ Creates a new project for the authenticated user.
 - Returns: the newly created project
 - Calls: ProjectModel.findByNameAndUser, ProjectModel.create
 
-### Example: Create project successfully
+### Scenario: Create project successfully
 
 #### PreDB
 users:
@@ -487,7 +487,7 @@ id, user_id, name, status
 1, 1, Existing Project, active
 2, 1, New Project, draft
 
-### Example: Reject duplicate name
+### Scenario: Reject duplicate name
 
 #### PreDB
 projects:
@@ -518,11 +518,11 @@ A class specification consists of:
 3. **Properties** (state)
 4. **Methods** (which may reference Function specs)
 5. Optional **relationships** (extends, implements, composes)
-6. Optional **Examples** showing usage scenarios
+6. Optional **Scenarios** showing usage scenarios
 
-### Examples Section
+### Scenarios Section
 
-Not every method needs an example. Include examples for key usage scenarios that demonstrate how the class is used in practice. Examples follow the same PreDB/Steps/PostDB format as other specs.
+Not every method needs a scenario. Include scenarios for key usage cases that demonstrate how the class is used in practice. Scenarios follow the same PreDB/Steps/PostDB format as other specs.
 
 ### Example
 
@@ -546,7 +546,7 @@ Manages project lifecycle operations including creation, updates, and deletion.
 - Implements: IProjectService
 - Composes: ProjectValidator, Database
 
-## Examples
+## Scenarios
 
 ### Create a new project
 
@@ -667,7 +667,7 @@ A hook specification consists of:
 4. **State** it manages internally
 5. **Returns** - always includes `handle[Behavior]`, `isLoading`, and `error`
 6. Optional **Dependencies** (other hooks it calls)
-7. **Examples** - test scenarios for the handler using `PreState`/`Steps`/`PostState` (state changes, not database)
+7. **Scenarios** - test scenarios for the handler using `PreState`/`Steps`/`PostState` (state changes, not database)
 
 ### Example
 
@@ -688,9 +688,9 @@ Entry point for the Create Project behavior. Validates input, performs optimisti
 ## Dependencies
 - useSetAtom(projectsAtom) - for optimistic updates
 
-## Examples
+## Scenarios
 
-### Example: Create project successfully
+### Scenario: Create project successfully
 
 #### PreState
 projectsAtom: []
@@ -706,7 +706,7 @@ projectsAtom: [{ id: 1, name: "New Project", status: "draft", pending: false }]
 isLoading: false
 error: null
 
-### Example: Reject empty name
+### Scenario: Reject empty name
 
 #### PreState
 projectsAtom: []
@@ -746,7 +746,7 @@ A route specification consists of:
 4. The **Behavior** it implements
 5. **Input** (request payload)
 6. **Returns** (for non-streaming) or **Emitted Events** (for streaming)
-7. **Examples**
+7. **Scenarios**
 
 ### Consumption
 
@@ -777,7 +777,7 @@ Processes uploaded data and returns results.
 - success: boolean
 - data: ProcessedResult
 
-## Examples
+## Scenarios
 
 ### Process successfully
 
@@ -828,7 +828,7 @@ Generates a project specification incrementally.
 - Success: emits `complete`, then closes stream
 - Error: emits `error`, then closes stream
 
-## Examples
+## Scenarios
 
 ### Generate specification successfully
 
@@ -881,7 +881,7 @@ A workflow specification consists of:
 4. **Input** it accepts
 5. **Steps** - ordered, atomic units with what each persists
 6. **Completion** - success and failure outcomes
-7. **Examples** showing step-by-step execution
+7. **Scenarios** showing step-by-step execution
 
 ### Steps Section
 
@@ -929,7 +929,7 @@ Sends order confirmation email to customer.
 - Success: Order status set to "confirmed", customer notified
 - Failure: Order status set to "failed", payment reversed if charged, admin notified
 
-## Examples
+## Scenarios
 
 ### Process order successfully
 
