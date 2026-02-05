@@ -1,6 +1,7 @@
 import { getUser } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
+import { IframeAuthNotifier } from "./components/iframe-auth-notifier";
+import { AdminAccessDenied } from "./components/admin-access-denied";
 
 export default async function AdminLayout({
   children,
@@ -9,18 +10,16 @@ export default async function AdminLayout({
 }) {
   const { user } = await getUser();
 
-  // Check if user is authenticated and has admin role
-  if (!user) {
-    redirect("/auth/signin?callbackURL=/admin");
-  }
-
-  if (user.role !== "admin") {
-    redirect("/");
-  }
+  const isAdmin = user?.role === "admin";
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="h-full">{children}</div>
+      <IframeAuthNotifier />
+      {isAdmin ? (
+        <div className="h-full">{children}</div>
+      ) : (
+        <AdminAccessDenied />
+      )}
       <Toaster />
     </div>
   );
