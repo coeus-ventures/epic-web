@@ -12,7 +12,9 @@
       "WebFetch(domain:*)",
       "mcp__playwright"
     ],
-    "deny": [],
+    "deny": [
+      "Bash(curl*http://localhost:8080*)"
+    ],
     "ask": [],
     "defaultMode": "acceptEdits",
     "disableBypassPermissionsMode": "disable"
