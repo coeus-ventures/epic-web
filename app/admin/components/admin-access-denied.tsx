@@ -11,7 +11,7 @@ import { AlertTriangle, Lock } from "lucide-react";
 
 export function AdminAccessDenied() {
   return (
-    <main className="flex flex-1 items-center justify-center p-4">
+    <main className="flex flex-1 h-full items-center justify-center p-4">
       <Card className="w-full max-w-md border-zinc-200 dark:border-zinc-800">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">

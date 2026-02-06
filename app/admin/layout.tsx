@@ -13,10 +13,10 @@ export default async function AdminLayout({
   const isAdmin = user?.role === "admin";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen h-screen flex flex-col bg-background">
       <IframeAuthNotifier />
       {isAdmin ? (
-        <div className="h-full">{children}</div>
+        <div className="flex-1">{children}</div>
       ) : (
         <AdminAccessDenied />
       )}
