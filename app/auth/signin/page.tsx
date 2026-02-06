@@ -1,6 +1,7 @@
 import Link from "next/link";
 import SignInForm from "./components/signin-form";
 import { HOME_URL } from "@/app.config";
+import { IframeAuthNotifier } from "@/app/admin/behaviors/iframe-auth-notifier/iframe-auth-notifier";
 
 interface SignInPageProps {
   searchParams: Promise<{
@@ -14,6 +15,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
 
   return (
     <main className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <IframeAuthNotifier />
       <div className="flex flex-col items-center justify-center w-full pt-16 pb-24">
         {/* Info badge */}
         <div className="inline-block rounded-lg bg-zinc-100 dark:bg-zinc-800 px-3 py-1 text-sm mb-8">
