@@ -1,6 +1,6 @@
 import { getUser } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
-import { IframeAuthNotifier } from "./components/iframe-auth-notifier";
+import { IframeAuthNotifier } from "./behaviors/iframe-auth-notifier/iframe-auth-notifier";
 import { AdminAccessDenied } from "./components/admin-access-denied";
 
 export default async function AdminLayout({
