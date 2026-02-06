@@ -36,7 +36,7 @@ export function useIframeAuthNotifier() {
         isAdmin,
         isAuthenticated,
       },
-      window.location.origin
+      '*'
     );
   }, [isAdmin, isAuthenticated, isPending, setAuthState]);
 
