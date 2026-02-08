@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { use } from "react";
 import SignInForm from "./components/signin-form";
 import { HOME_URL } from "@/app.config";
-import { IframeAuthNotifier } from "@/app/admin/behaviors/iframe-auth-notifier/iframe-auth-notifier";
+import { IframeAuthNotifier } from "@/shared/behaviors/iframe-auth-notifier/iframe-auth-notifier";
 
 interface SignInPageProps {
   searchParams: Promise<{
@@ -9,13 +12,14 @@ interface SignInPageProps {
   }>;
 }
 
-export default async function SignInPage({ searchParams }: SignInPageProps) {
-  const params = await searchParams;
+export default function SignInPage({ searchParams }: SignInPageProps) {
+  const params = use(searchParams);
   const redirectURL = params.redirectTo;
 
   return (
     <main className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <IframeAuthNotifier />
+      {/* Notify parent that user is not authenticated (handles logout redirect case) */}
+      <IframeAuthNotifier isAdmin={false} isAuthenticated={false} />
       <div className="flex flex-col items-center justify-center w-full pt-16 pb-24">
         {/* Info badge */}
         <div className="inline-block rounded-lg bg-zinc-100 dark:bg-zinc-800 px-3 py-1 text-sm mb-8">

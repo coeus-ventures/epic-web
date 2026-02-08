@@ -1,6 +1,6 @@
 import { getUser } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
-import { IframeAuthNotifier } from "./behaviors/iframe-auth-notifier/iframe-auth-notifier";
+import { IframeAuthNotifier } from "@/shared/behaviors/iframe-auth-notifier/iframe-auth-notifier";
 import { AdminAccessDenied } from "./components/admin-access-denied";
 
 export default async function AdminLayout({
@@ -14,7 +14,7 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen h-screen flex flex-col bg-background">
-      <IframeAuthNotifier />
+      <IframeAuthNotifier observeSession />
       {isAdmin ? (
         <div className="flex-1">{children}</div>
       ) : (
