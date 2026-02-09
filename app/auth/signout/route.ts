@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 /**
  * GET /auth/signout?redirect=/path
@@ -20,5 +20,10 @@ export async function GET(request: NextRequest) {
     // No session to sign out — that's fine, just redirect
   }
 
-  return NextResponse.redirect(new URL(redirect, request.url));
+  // Use relative redirect (Location header with path only) to avoid
+  // resolving against the internal localhost:8080 URL of the sandbox.
+  return new Response(null, {
+    status: 307,
+    headers: { Location: redirect },
+  });
 }
