@@ -1,91 +1,35 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { useAtom } from "jotai";
+import { useEffect } from "react";
 import { authClient } from "@/lib/auth/client";
-import { iframeAuthState } from "./state";
-
-export interface IframeAuthStatus {
-  isAdmin: boolean;
-  isAuthenticated: boolean;
-}
-
-interface UseIframeAuthNotifierOptions extends Partial<IframeAuthStatus> {
-  /**
-   * When true, observes auth session and notifies on changes.
-   * When false/undefined, uses provided isAdmin/isAuthenticated values.
-   */
-  observeSession?: boolean;
-}
 
 /**
  * Notifies parent window (behave) about iframe authentication status.
+ * Uses useSession() to observe auth changes and sends postMessage to parent.
  *
- * ## Modes
- *
- * **Auto mode** (default): Observes auth session, notifies on changes
- * ```ts
- * useIframeAuthNotifier(); // or { observeSession: true }
- * ```
- *
- * **Manual mode**: Notifies with fixed values (useful for signin page after logout)
- * ```ts
- * useIframeAuthNotifier({ isAdmin: false, isAuthenticated: false });
- * ```
+ * - isPending: session still loading, don't notify yet
+ * - data is null: user not logged in → isAdmin: false
+ * - data exists: check user.role for admin status
  */
-export function useIframeAuthNotifier(
-  options: UseIframeAuthNotifierOptions = {}
-) {
-  const { observeSession = false, ...manualStatus } = options;
-
+export function useIframeAuthNotifier() {
   const session = authClient.useSession();
-  const [, setAuthState] = useAtom(iframeAuthState);
 
-  // Determine status based on mode
-  const status: IframeAuthStatus = useMemo(
-    () =>
-      observeSession
-        ? {
-            isAdmin: session.data?.user?.role === "admin",
-            isAuthenticated: !!session.data,
-          }
-        : {
-            isAdmin: manualStatus.isAdmin ?? false,
-            isAuthenticated: manualStatus.isAuthenticated ?? false,
-          },
-    [
-      observeSession,
-      session.data,
-      manualStatus.isAdmin,
-      manualStatus.isAuthenticated,
-    ]
-  );
-
-  const isPending = observeSession && session.isPending;
+  const isPending = session.isPending;
+  const isAdmin = session.data?.user?.role === "admin";
+  const isAuthenticated = !!session.data;
 
   useEffect(() => {
     if (isPending) return;
     if (typeof window === "undefined") return;
-    if (window.parent === window) return; // Not in iframe
+    if (window.parent === window) return;
 
-    // Update local state
-    setAuthState({
-      ...status,
-      isPending: false,
-    });
-
-    // Notify parent window
     window.parent.postMessage(
       {
         type: "admin-auth-status",
-        ...status,
+        isAdmin,
+        isAuthenticated,
       },
       "*"
     );
-  }, [status, isPending, setAuthState]);
-
-  return {
-    ...status,
-    isPending,
-  };
+  }, [isPending, isAdmin, isAuthenticated]);
 }
