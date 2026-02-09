@@ -12,11 +12,10 @@ import { authClient } from "@/lib/auth/client";
  * - data exists: check user.role for admin status
  */
 export function useIframeAuthNotifier() {
-  const session = authClient.useSession();
+  const { data, isPending } = authClient.useSession();
 
-  const isPending = session.isPending;
-  const isAdmin = session.data?.user?.role === "admin";
-  const isAuthenticated = !!session.data;
+  const isAdmin = data?.user?.role === "admin";
+  const isAuthenticated = !!data;
 
   useEffect(() => {
     if (isPending) return;

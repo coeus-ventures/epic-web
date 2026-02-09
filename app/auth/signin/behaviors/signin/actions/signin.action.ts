@@ -25,7 +25,6 @@ export async function signIn(
     password: formData.get("password"),
   };
 
-  console.log("signing in", raw);
   const parsed = signInSchema.safeParse(raw);
 
   if (!parsed.success) {
