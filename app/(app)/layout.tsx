@@ -5,6 +5,7 @@ import { signOut as signOutAction } from "@/shared/behaviors/signout/actions/sig
 import { redirect } from "next/navigation";
 import { SIGNIN_URL } from "@/app.config";
 import { ImpersonationBanner } from "@/app/admin/components/impersonation-banner";
+import { IframeAuthNotifier } from "@/shared/behaviors/iframe-auth-notifier/iframe-auth-notifier";
 
 async function handleSignOut() {
   "use server";
@@ -22,6 +23,7 @@ export default async function AppLayout({
 
   return (
     <div className="min-h-screen bg-linear-to-b from-zinc-50 to-white dark:from-zinc-950 dark:to-black">
+      <IframeAuthNotifier observeSession />
       <header className="border-b border-zinc-200 dark:border-zinc-800">
         <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-end">

@@ -46,12 +46,7 @@ export const auth = betterAuth({
     },
   },
 
-  session: {
-    cookieCache: {
-      enabled: true,
-      maxAge: 24 * 60 * 60, // 1 day
-    },
-  },
+  session: {},
   secret: process.env.BETTER_AUTH_SECRET,
   baseUrl:
     process.env.NEXT_PUBLIC_BASE_URL ||
