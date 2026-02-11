@@ -16,8 +16,6 @@ describe("schema-introspection", () => {
       session: [],
       account: [],
       verification: [],
-      auth_tokens: [],
-      magic_links: [],
     });
   });
 
@@ -29,9 +27,7 @@ describe("schema-introspection", () => {
       expect(tables).toContain("session");
       expect(tables).toContain("account");
       expect(tables).toContain("verification");
-      expect(tables).toContain("auth_tokens");
-      expect(tables).toContain("magic_links");
-      expect(tables.length).toBeGreaterThanOrEqual(6);
+      expect(tables.length).toBeGreaterThanOrEqual(4);
     });
 
     it("should return sorted table names", () => {

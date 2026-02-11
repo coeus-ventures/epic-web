@@ -28,8 +28,8 @@ const TABLE_SYMBOL = Symbol.for("drizzle:IsDrizzleTable");
 const NAME_SYMBOL = Symbol.for("drizzle:Name");
 
 const tableNames = Object.values(schema)
-  .filter((t): t is Record<symbol, unknown> => !!(t as Record<symbol, unknown>)?.[TABLE_SYMBOL])
-  .map((t) => t[NAME_SYMBOL] as string);
+  .filter((t) => !!(t as unknown as Record<symbol, unknown>)?.[TABLE_SYMBOL])
+  .map((t) => (t as unknown as Record<symbol, unknown>)[NAME_SYMBOL] as string);
 
 // Push schema before all tests
 beforeAll(async () => {

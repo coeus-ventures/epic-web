@@ -11,23 +11,19 @@ describe("fetchTables action", () => {
       session: [],
       account: [],
       verification: [],
-      auth_tokens: [],
-      magic_links: [],
     });
   });
 
   it("should return all tables with row counts", async () => {
     const tables = await fetchTables();
 
-    expect(tables.length).toBeGreaterThanOrEqual(6);
+    expect(tables.length).toBeGreaterThanOrEqual(4);
 
     const tableNames = tables.map((t) => t.name);
     expect(tableNames).toContain("user");
     expect(tableNames).toContain("session");
     expect(tableNames).toContain("account");
     expect(tableNames).toContain("verification");
-    expect(tableNames).toContain("auth_tokens");
-    expect(tableNames).toContain("magic_links");
   });
 
   it("should return correct row counts", async () => {

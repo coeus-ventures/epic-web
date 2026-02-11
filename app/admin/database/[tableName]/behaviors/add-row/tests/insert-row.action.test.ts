@@ -11,8 +11,6 @@ describe("insertRow action", () => {
       session: [],
       account: [],
       verification: [],
-      auth_tokens: [],
-      magic_links: [],
     });
   });
 
