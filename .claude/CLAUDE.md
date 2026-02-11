@@ -1,61 +1,116 @@
-# Configuração do Projeto - Web Template
+# CLAUDE.md
 
-Esta pasta `.claude/` contém as configurações específicas do projeto para o Claude Code CLI.
+This file provides guidance to Claude Code when working with this repository.
 
-## MCP Servers Configurados
+## Architecture
 
-O projeto possui os seguintes MCP servers configurados em `.mcp.json`:
+**Three-layer architecture** with one-way data flow (top to bottom only):
 
-### 1. Next.js DevTools MCP (`next-devtools`)
-Fornece ferramentas de desenvolvimento Next.js para diagnósticos em tempo real, automação e acesso à documentação.
+| Layer | Runs On | Components | May Import | Must NOT Import |
+|-------|---------|------------|------------|-----------------|
+| **Frontend** | Browser | Components, Hooks, States | React, Zod, Jotai, Actions | Drizzle, Integrations, server-only |
+| **Backend** | Server | Actions, Routes | Integrations, auth utilities | React, Jotai, direct DB access |
+| **Infrastructure** | Server | Integrations, Models | Drizzle, external APIs | React, Actions, Hooks |
 
-**Uso:**
+See `docs/references/architecture.md` for detailed patterns and code examples.
+
+## Project Structure
+
 ```
-Next DevTools, init
-Next DevTools, what errors are in my Next.js application?
-Next DevTools, show me the structure of my routes
+app/
+  /(landing-page)/     # Public pages (NO auth)
+  /(app)/              # Authenticated pages (LOGIN REQUIRED)
+  /admin/              # Admin pages (LOGIN + ADMIN ROLE)
+  /auth/               # Auth pages (signin, signup, etc.)
+  /api/                # API routes
+db/                    # Schema + migrations
+lib/                   # Utilities, auth, testing libs
+shared/                # Models + Integrations
+components/ui/         # shadcn/ui components
 ```
 
-**Requisitos:**
-- Node.js v20.19+
-- Projeto Next.js rodando (`npm run dev`)
+### Behavior Structure
 
-### 2. Figma Dev Mode MCP (`figma-dev-mode`)
-Conecta o Claude Code aos designs do Figma para conversão de designs em código.
+Features are organized by behavior:
 
-**Uso:**
 ```
-Convert this Figma design to React: [link-do-figma]
-Use my current selection in Figma to implement this component
+app/[page]/behaviors/[behavior-name]/
+  [behavior-name].action.ts      # Server action (atomic)
+  route.ts                       # Route endpoint (streaming)
+  use-[behavior-name].ts         # React hook
+  state.ts                       # Behavior-specific state (optional)
+  tests/
+    [behavior-name].spec.ts      # E2E test
+    [behavior-name].action.test.ts
+    [behavior-name].route.test.ts
 ```
 
-**Requisitos:**
-- Figma Desktop App (atualizado)
-- Dev Mode MCP Server habilitado em: Figma Menu → Preferences → Enable Dev Mode MCP Server
-- O servidor roda localmente em: `http://127.0.0.1:3845/sse`
+A behavior has either an action OR a route, not both.
 
-## Permissões Configuradas
+## File Naming
 
-- ✅ Web Fetch - Acesso a qualquer domínio (`WebFetch(domain:*)`)
-- ✅ Web Search - Busca na web (`WebSearch`)
-- ✅ MCP Servers - Next.js DevTools e Figma
+| Type | Pattern |
+|------|---------|
+| Server actions | `[name].action.ts` |
+| Routes | `route.ts` |
+| React hooks | `use-[name].ts` |
+| Components | `[Name].tsx` |
+| E2E tests | `[name].spec.ts` |
+| Action tests | `[name].action.test.ts` |
+| Route tests | `[name].route.test.ts` |
+| State files | `state.ts` |
 
-## Comandos Úteis
+## Commands
 
 ```bash
-# Ver status dos MCP servers
-/mcp
 
-# Listar MCP servers configurados
-claude mcp list
+# Database
+bun run db:generate      # Generate migrations
+bun run db:migrate       # Apply migrations
+bun run db:push          # Push schema (dev only)
+bun run db:studio        # Visual editor
+bun run db:reset         # Clean + push schema
+bun run db:squash        # Combine migrations into one
 
-# Adicionar MCP server em escopo de projeto
-claude mcp add --scope project <name> <command>
-
-# Resetar aprovações de MCP servers do projeto
-claude mcp reset-project-choices
+# Testing
+bun run test             # Vitest unit tests
+bun run spec             # Playwright E2E tests
 ```
 
-## Inicialização Automática Next.js
+## Testing
 
-Quando trabalhar em projetos Next.js, o Claude Code deve chamar automaticamente a ferramenta `init` do next-devtools-mcp no início da sessão.
+**Philosophy**: Test real code with real database, minimal mocking.
+
+**Rules**:
+- NO mocking in Playwright tests
+- NO `toHaveBeenCalled` - test outcomes, not implementation
+- USE test database, not mocks
+- Start with ONE test, expand later
+- Use PreDB/PostDB for deterministic state
+
+```typescript
+// Database test pattern
+await PreDB(db, schema, { users: [] });
+// ... execute action ...
+await PostDB(db, schema, { users: [{ name: 'Alice' }] });
+```
+
+## Authentication
+
+**Better Auth** with middleware protection:
+- `/(app)/*` and `/admin/*` require authentication
+- Config: `lib/auth/index.ts`, Client: `lib/auth/client.ts`
+- Server-side: `getUser()` for cached session retrieval
+
+## Package Management
+
+Use **Bun** exclusively: `bun add`, `bun remove`
+
+## Sandbox Environment
+
+The dev server is **already running** via pm2 on port 8080. Two URLs are available:
+- `http://localhost:8080` — local access
+- Public sandbox URL — external access (check with `pm2 status`)
+
+**Never run `bun run build`** — the sandbox is for development only.
+After making changes, prefer running **`bun run typecheck`** as the final verification step.

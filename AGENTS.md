@@ -74,6 +74,15 @@ bun run test             # Vitest unit tests
 bun run spec             # Playwright E2E tests
 ```
 
+## Sandbox Environment
+
+The dev server is **already running** via pm2 on port 8080. Two URLs are available:
+- `http://localhost:8080` — local access
+- Public sandbox URL — external access (check with `pm2 status`)
+
+**Never run `bun run build`** — the sandbox is for development only.
+After making changes, prefer running **`bun run typecheck`** as the final verification step.
+
 ## Testing
 
 **Philosophy**: Test real code with real database, minimal mocking.
