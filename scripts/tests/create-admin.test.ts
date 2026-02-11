@@ -3,8 +3,18 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 vi.mock('@/lib/auth', () => ({
   auth: {
     api: {
-      createUser: vi.fn(),
+      signUpEmail: vi.fn(),
     },
+  },
+}));
+
+vi.mock('@/db', () => ({
+  db: {
+    update: vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(),
+      })),
+    })),
   },
 }));
 
@@ -14,17 +24,11 @@ import { auth } from '@/lib/auth';
 describe('createAdmin', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv('BETTER_AUTH_SECRET', 'test-secret');
   });
 
   it('should create admin user successfully', async () => {
-    vi.mocked(auth.api.createUser).mockResolvedValue({
-      user: {
-        id: 'user-123',
-        email: 'admin@example.com',
-        name: 'Admin',
-        role: 'admin',
-      },
-    });
+    vi.mocked(auth.api.signUpEmail).mockResolvedValue({} as any);
 
     const result = await createAdmin({
       email: 'admin@example.com',
@@ -33,19 +37,19 @@ describe('createAdmin', () => {
 
     expect(result.success).toBe(true);
     expect(result.error).toBeUndefined();
-    expect(auth.api.createUser).toHaveBeenCalledWith({
+    expect(auth.api.signUpEmail).toHaveBeenCalledWith({
+      headers: expect.any(Headers),
       body: {
         email: 'admin@example.com',
         password: 'password123',
         name: 'Admin',
-        role: 'admin',
       },
     });
   });
 
-  it('should return error when user already exists', async () => {
-    vi.mocked(auth.api.createUser).mockRejectedValue(
-      new Error('USER_ALREADY_EXISTS')
+  it('should return error when signup throws non-USER_ALREADY_EXISTS error', async () => {
+    vi.mocked(auth.api.signUpEmail).mockRejectedValue(
+      new Error('UNKNOWN_ERROR')
     );
 
     const result = await createAdmin({
@@ -54,11 +58,11 @@ describe('createAdmin', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe('USER_ALREADY_EXISTS');
+    expect(result.error).toBe('UNKNOWN_ERROR');
   });
 
   it('should handle non-Error exceptions', async () => {
-    vi.mocked(auth.api.createUser).mockRejectedValue('Unknown error');
+    vi.mocked(auth.api.signUpEmail).mockRejectedValue('Unknown error');
 
     const result = await createAdmin({
       email: 'test@example.com',
