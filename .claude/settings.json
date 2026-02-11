@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
       "Read(**)",
@@ -9,8 +10,12 @@
       "Glob(**)",
       "NotebookEdit(**)",
       "NotebookRead(**)",
+      "WebFetch",
       "WebFetch(domain:*)",
-      "mcp__playwright"
+      "WebSearch",
+      "mcp__playwright",
+      "mcp__next-devtools",
+      "mcp__figma-dev-mode"
     ],
     "deny": [
       "Bash(curl*http://localhost:8080*)"
@@ -24,5 +29,5 @@
     "autoAllowBashIfSandboxed": true
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": ["next-devtools"]
+  "enabledMcpjsonServers": ["next-devtools", "figma-dev-mode"]
 }
