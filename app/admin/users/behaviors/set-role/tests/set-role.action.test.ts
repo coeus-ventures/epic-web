@@ -47,6 +47,8 @@ describe("setRole action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.setRole).mockResolvedValue({
@@ -74,6 +76,8 @@ describe("setRole action", () => {
   it("should return error for unauthenticated user", async () => {
     vi.mocked(getUser).mockResolvedValue({
       user: null,
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await setRole({
@@ -98,6 +102,8 @@ describe("setRole action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await setRole({
@@ -124,6 +130,8 @@ describe("setRole action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await setRole({
@@ -151,6 +159,8 @@ describe("setRole action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.setRole).mockResolvedValue({
@@ -188,6 +198,8 @@ describe("setRole action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await setRole({
@@ -215,6 +227,8 @@ describe("setRole action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.setRole).mockRejectedValue(new Error("User not found"));

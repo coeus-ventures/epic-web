@@ -46,6 +46,8 @@ describe("banUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.banUser).mockResolvedValue({} as any);
@@ -62,6 +64,8 @@ describe("banUser action", () => {
   it("should return error for unauthenticated user", async () => {
     vi.mocked(getUser).mockResolvedValue({
       user: null,
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await banUser({
@@ -85,6 +89,8 @@ describe("banUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await banUser({
@@ -110,6 +116,8 @@ describe("banUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await banUser({
@@ -133,6 +141,8 @@ describe("banUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await banUser({
@@ -159,6 +169,8 @@ describe("banUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.banUser).mockRejectedValue(new Error("User not found"));

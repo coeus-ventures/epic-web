@@ -47,6 +47,8 @@ describe("updateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const updatedUser = {
@@ -92,6 +94,8 @@ describe("updateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const updatedUser = {
@@ -136,6 +140,8 @@ describe("updateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const updatedUser = {
@@ -180,6 +186,8 @@ describe("updateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const updatedUser = {
@@ -214,6 +222,8 @@ describe("updateUser action", () => {
   it("should return error for unauthenticated user", async () => {
     vi.mocked(getUser).mockResolvedValue({
       user: null,
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await updateUser({
@@ -238,6 +248,8 @@ describe("updateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await updateUser({
@@ -262,6 +274,8 @@ describe("updateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await updateUser({
@@ -286,6 +300,8 @@ describe("updateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await updateUser({
@@ -310,6 +326,8 @@ describe("updateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await updateUser({
@@ -334,6 +352,8 @@ describe("updateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.adminUpdateUser).mockRejectedValue(

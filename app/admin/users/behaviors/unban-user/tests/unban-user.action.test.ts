@@ -47,6 +47,8 @@ describe("unbanUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.unbanUser).mockResolvedValue({
@@ -73,6 +75,8 @@ describe("unbanUser action", () => {
   it("should return error for unauthenticated user", async () => {
     vi.mocked(getUser).mockResolvedValue({
       user: null,
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await unbanUser({
@@ -96,6 +100,8 @@ describe("unbanUser action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await unbanUser({
@@ -119,6 +125,8 @@ describe("unbanUser action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await unbanUser({
@@ -145,6 +153,8 @@ describe("unbanUser action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.unbanUser).mockRejectedValue(

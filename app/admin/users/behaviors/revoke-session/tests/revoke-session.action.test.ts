@@ -46,6 +46,8 @@ describe("revokeSession action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.revokeUserSession).mockResolvedValue({
@@ -63,6 +65,8 @@ describe("revokeSession action", () => {
   it("should return error for unauthenticated user", async () => {
     vi.mocked(getUser).mockResolvedValue({
       user: null,
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await revokeSession({
@@ -86,6 +90,8 @@ describe("revokeSession action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await revokeSession({
@@ -109,6 +115,8 @@ describe("revokeSession action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await revokeSession({
@@ -135,6 +143,8 @@ describe("revokeSession action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.revokeUserSession).mockRejectedValue(

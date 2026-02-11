@@ -53,6 +53,8 @@ describe("stopImpersonating action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const now = new Date();
@@ -83,6 +85,8 @@ describe("stopImpersonating action", () => {
   it("should return error for unauthenticated user", async () => {
     vi.mocked(getUser).mockResolvedValue({
       user: null,
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await stopImpersonating();
@@ -104,6 +108,8 @@ describe("stopImpersonating action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.stopImpersonating).mockRejectedValue(

@@ -54,6 +54,8 @@ describe("impersonateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const now = new Date();
@@ -88,6 +90,8 @@ describe("impersonateUser action", () => {
   it("should return error for unauthenticated user", async () => {
     vi.mocked(getUser).mockResolvedValue({
       user: null,
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await impersonateUser({
@@ -111,6 +115,8 @@ describe("impersonateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await impersonateUser({
@@ -136,6 +142,8 @@ describe("impersonateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await impersonateUser({
@@ -159,6 +167,8 @@ describe("impersonateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await impersonateUser({
@@ -185,6 +195,8 @@ describe("impersonateUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.impersonateUser).mockRejectedValue(

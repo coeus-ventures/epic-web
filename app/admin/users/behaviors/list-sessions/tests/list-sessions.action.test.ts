@@ -47,6 +47,8 @@ describe("listSessions action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const mockSessions = [
@@ -94,6 +96,8 @@ describe("listSessions action", () => {
   it("should return error for unauthenticated user", async () => {
     vi.mocked(getUser).mockResolvedValue({
       user: null,
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await listSessions({
@@ -117,6 +121,8 @@ describe("listSessions action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await listSessions({
@@ -140,6 +146,8 @@ describe("listSessions action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await listSessions({
@@ -163,6 +171,8 @@ describe("listSessions action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.listUserSessions).mockRejectedValue(
@@ -193,6 +203,8 @@ describe("listSessions action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.listUserSessions).mockResolvedValue({

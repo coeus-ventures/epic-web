@@ -46,6 +46,8 @@ describe("deleteUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.removeUser).mockResolvedValue({ success: true });
@@ -61,6 +63,8 @@ describe("deleteUser action", () => {
   it("should return error for unauthenticated user", async () => {
     vi.mocked(getUser).mockResolvedValue({
       user: null,
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await deleteUser({
@@ -84,6 +88,8 @@ describe("deleteUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await deleteUser({
@@ -109,6 +115,8 @@ describe("deleteUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await deleteUser({
@@ -132,6 +140,8 @@ describe("deleteUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await deleteUser({
@@ -158,6 +168,8 @@ describe("deleteUser action", () => {
         banned: false,
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.removeUser).mockRejectedValue(

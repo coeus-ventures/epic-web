@@ -47,6 +47,8 @@ describe("setPassword action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.setUserPassword).mockResolvedValue({
@@ -65,6 +67,8 @@ describe("setPassword action", () => {
   it("should return error for unauthenticated user", async () => {
     vi.mocked(getUser).mockResolvedValue({
       user: null,
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await setPassword({
@@ -89,6 +93,8 @@ describe("setPassword action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await setPassword({
@@ -113,6 +119,8 @@ describe("setPassword action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await setPassword({
@@ -137,6 +145,8 @@ describe("setPassword action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     const result = await setPassword({
@@ -164,6 +174,8 @@ describe("setPassword action", () => {
         updatedAt: new Date(),
       },
       sessionToken: "session-token-123",
+      isImpersonating: false,
+      impersonatedBy: null,
     });
 
     vi.mocked(auth.api.setUserPassword).mockRejectedValue(
