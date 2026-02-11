@@ -18,6 +18,10 @@ Before coding, understand the context and commit to a BOLD aesthetic direction:
 
 **CRITICAL**: Choose a clear conceptual direction and execute it with precision. Bold maximalism and refined minimalism both work - the key is intentionality, not intensity.
 
+## Project Stack
+
+This project uses **shadcn/ui** components with **Tailwind CSS**. Always use the existing color tokens defined in `app/globals.css` (e.g., `bg-primary`, `text-muted-foreground`, `border-border`). Never hardcode colors — rely on the CSS variables from the theme so components stay consistent with the design system.
+
 Then implement working code (HTML/CSS/JS, React, Vue, etc.) that is:
 - Production-grade and functional
 - Visually striking and memorable

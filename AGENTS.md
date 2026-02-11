@@ -108,6 +108,10 @@ await PostDB(db, schema, { users: [{ name: 'Alice' }] });
 - Config: `lib/auth/index.ts`, Client: `lib/auth/client.ts`
 - Server-side: `getUser()` for cached session retrieval
 
+## Frontend Design
+
+When working on tasks that involve React components or UI, use the **frontend-design** skill at `.claude/skills/frontend-design/SKILL.md` for high-quality, production-grade design output.
+
 ## Package Management
 
 Use **Bun** exclusively: `bun add`, `bun remove`
