@@ -38,8 +38,8 @@ export function AdminAccessDenied() {
             </div>
           </div>
           <div className="flex gap-2 pt-4">
-            <Button size="lg" className="w-full" asChild>
-              <Link href="/">Go to Home</Link>
+            <Button size="lg" className="w-full" nativeButton={false} render={<Link href="/" />}>
+              Go to Home
             </Button>
           </div>
         </CardContent>

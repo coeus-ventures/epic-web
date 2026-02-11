@@ -43,14 +43,8 @@ export function UserRowActions({
 }: UserRowActionsProps) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="h-8 w-8 p-0"
-          aria-label={`Actions for ${user.name || user.email}`}
-        >
+      <DropdownMenuTrigger render={<Button variant="ghost" className="h-8 w-8 p-0" aria-label={`Actions for ${user.name || user.email}`} />}>
           <MoreHorizontal className="h-4 w-4" />
-        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[160px]">
         <DropdownMenuItem onClick={onEdit}>

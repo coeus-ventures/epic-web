@@ -81,7 +81,7 @@ export function SetRoleDialog({ user, open, onOpenChange }: SetRoleDialogProps) 
               <Label htmlFor="role" className="text-sm font-medium">
                 Role
               </Label>
-              <Select value={role} onValueChange={(value: "user" | "admin") => setRole(value)}>
+              <Select value={role} onValueChange={(value) => { if (value) setRole(value as "user" | "admin") }}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

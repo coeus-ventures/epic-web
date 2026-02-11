@@ -32,7 +32,7 @@ export function UsersTableToolbar() {
       {/* Role filter */}
       <Select
         value={roleFilter || "all"}
-        onValueChange={(value) => setRoleFilter(value === "all" ? undefined : value)}
+        onValueChange={(value) => setRoleFilter(!value || value === "all" ? undefined : value)}
       >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="All roles" />

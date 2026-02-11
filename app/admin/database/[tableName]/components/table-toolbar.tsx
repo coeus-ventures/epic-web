@@ -85,11 +85,9 @@ export function TableToolbar({
       </div>
       <div className="flex items-center gap-2">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
+          <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
               <Columns className="mr-2 h-4 w-4" />
               Columns
-            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[200px]">
             {columns.map((column) => (

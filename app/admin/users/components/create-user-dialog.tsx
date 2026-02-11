@@ -144,9 +144,9 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
             </Label>
             <Select
               value={formData.role}
-              onValueChange={(value: "user" | "admin") =>
-                setFormData((prev) => ({ ...prev, role: value }))
-              }
+              onValueChange={(value) => {
+                if (value) setFormData((prev) => ({ ...prev, role: value as "user" | "admin" }))
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select role" />

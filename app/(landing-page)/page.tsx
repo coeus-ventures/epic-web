@@ -91,8 +91,8 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button size="lg" className="w-full sm:w-auto" asChild>
-                <Link href="/auth/signin">Get Started</Link>
+              <Button size="lg" className="w-full sm:w-auto" nativeButton={false} render={<Link href="/auth/signin" />}>
+                Get Started
               </Button>
               <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 View Documentation
