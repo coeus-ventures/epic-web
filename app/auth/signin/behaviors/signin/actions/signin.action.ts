@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { authErrorHandler, throwAuthError } from "@/lib/auth/error";
 import { HOME_URL } from "@/app.config";
 
@@ -46,6 +47,7 @@ export async function signIn(
 
   try {
     await auth.api.signInEmail({
+      headers: await headers(),
       body: {
         email,
         password,
