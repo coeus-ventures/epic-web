@@ -11,9 +11,6 @@ export default function AdminPage() {
 }
 
 async function AdminDashboardWrapper() {
-  // Simulate 3 seconds of data fetching
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-
   const stats = {
     totalUsers: 42,
     activeUsers: 38,
