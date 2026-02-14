@@ -14,7 +14,7 @@ export const auth = betterAuth({
       defaultRole: "user",
     }),
     magicLink({
-      expiresIn: 300, // 5 minutes
+      expiresIn: 3600, // 60 minutes
       // No-op sendMagicLink - token is stored in verification table
       // and can be retrieved directly for preview auto-login
       sendMagicLink: async () => {
