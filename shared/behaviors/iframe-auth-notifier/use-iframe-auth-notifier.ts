@@ -5,30 +5,34 @@ import { authClient } from "@/lib/auth/client";
 
 /**
  * Notifies parent window (behave) about iframe authentication status.
- * Uses useSession() to observe auth changes and sends postMessage to parent.
  *
- * - isPending: session still loading, don't notify yet
- * - data is null: user not logged in → isAdmin: false
- * - data exists: check user.role for admin status
+ * Uses manual subscription to the session atom instead of useSession() hook
+ * to avoid infinite render loops when there's no active session.
+ * Only sends postMessage when auth state actually changes.
  */
 export function useIframeAuthNotifier() {
-  const { data, isPending } = authClient.useSession();
-
-  const isAdmin = data?.user?.role === "admin";
-  const isAuthenticated = !!data;
-
   useEffect(() => {
-    if (isPending) return;
     if (typeof window === "undefined") return;
     if (window.parent === window) return;
 
-    window.parent.postMessage(
-      {
-        type: "admin-auth-status",
-        isAdmin,
-        isAuthenticated,
-      },
-      "*"
-    );
-  }, [isPending, isAdmin, isAuthenticated]);
+    let lastKey: string | null = null;
+
+    const unsubscribe = authClient.$store.atoms.session.subscribe((value) => {
+      if (value.isPending) return;
+
+      const isAdmin = value.data?.user?.role === "admin";
+      const isAuthenticated = !!value.data;
+      const key = `${isAdmin}:${isAuthenticated}`;
+
+      if (lastKey === key) return;
+      lastKey = key;
+
+      window.parent.postMessage(
+        { type: "admin-auth-status", isAdmin, isAuthenticated },
+        "*"
+      );
+    });
+
+    return unsubscribe;
+  }, []);
 }
