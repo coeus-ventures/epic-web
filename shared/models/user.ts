@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { user, InsertUser, SelectUser } from "@/db/schema";
-import { eq, and, SQL, getTableColumns, isNull } from "drizzle-orm";
+import { eq, and, SQL, getTableColumns, isNull, count } from "drizzle-orm";
 import crypto from "crypto";
 
 export type User = typeof user.$inferSelect & {};
@@ -115,6 +115,55 @@ export class UserModel {
       this.updatedAt = newUser.updatedAt;
     }
     return this as unknown as User;
+  }
+
+  static async count(attributes?: Partial<SelectUser>): Promise<number> {
+    if (!attributes || Object.keys(attributes).length === 0) {
+      const result = await db.select({ count: count() }).from(user);
+      return result[0].count;
+    }
+
+    const columns = getTableColumns(user);
+    const conditions: SQL[] = [];
+
+    for (const key in attributes) {
+      if (Object.prototype.hasOwnProperty.call(attributes, key)) {
+        const attributeKey = key as keyof SelectUser;
+        const columnKey = key as keyof typeof columns;
+        const attributeValue = attributes[attributeKey];
+
+        if (columns[columnKey]) {
+          if (attributeValue === null) {
+            conditions.push(isNull(columns[columnKey]));
+          } else if (attributeValue !== undefined) {
+            conditions.push(eq(columns[columnKey], attributeValue));
+          }
+        }
+      }
+    }
+
+    const result = await db
+      .select({ count: count() })
+      .from(user)
+      .where(and(...conditions));
+    return result[0].count;
+  }
+
+  static async stats(): Promise<{
+    totalUsers: number;
+    activeUsers: number;
+    bannedUsers: number;
+  }> {
+    const [totalUsers, bannedUsers] = await Promise.all([
+      UserModel.count(),
+      UserModel.count({ banned: true }),
+    ]);
+
+    return {
+      totalUsers,
+      activeUsers: totalUsers - bannedUsers,
+      bannedUsers,
+    };
   }
 
   async update(
