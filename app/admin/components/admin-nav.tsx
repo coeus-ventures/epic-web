@@ -52,7 +52,7 @@ export function AdminNav() {
         variant="ghost"
         size="sm"
         className="text-muted-foreground hover:text-foreground"
-        onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => router.refresh() } })}
+        onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => window.location.reload() } })}
       >
         <LogOut className="h-4 w-4 mr-2" />
         Logout
