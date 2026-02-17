@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
-import { IframeAuthNotifier } from "@/shared/behaviors/iframe-auth-notifier/iframe-auth-notifier";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,7 +29,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <IframeAuthNotifier />
           {children}
         </Providers>
       </body>

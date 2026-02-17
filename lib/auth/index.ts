@@ -43,9 +43,6 @@ export const auth = betterAuth({
     },
   },
 
-  session: {
-    disableSessionRefresh: true,
-  },
   secret: process.env.BETTER_AUTH_SECRET,
   baseUrl:
     process.env.NEXT_PUBLIC_BASE_URL ||
