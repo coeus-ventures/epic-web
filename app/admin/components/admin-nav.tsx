@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Users, LogOut, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth/client";
+import { notifyParent } from "../behaviors/iframe-auth-notifier/notify-parent";
 
 const navItems = [
   {
@@ -52,7 +53,10 @@ export function AdminNav() {
         variant="ghost"
         size="sm"
         className="text-muted-foreground hover:text-foreground"
-        onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => window.location.reload() } })}
+        onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => {
+          notifyParent(false);
+          router.refresh();
+        }}})}
       >
         <LogOut className="h-4 w-4 mr-2" />
         Logout
