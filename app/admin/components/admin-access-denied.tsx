@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AlertTriangle, Lock } from "lucide-react";
+
 
 export function AdminAccessDenied() {
   return (
@@ -36,11 +35,6 @@ export function AdminAccessDenied() {
                 with admin privileges.
               </p>
             </div>
-          </div>
-          <div className="flex gap-2 pt-4">
-            <Button size="lg" className="w-full" nativeButton={false} render={<Link href="/" />}>
-              Go to Home
-            </Button>
           </div>
         </CardContent>
       </Card>
