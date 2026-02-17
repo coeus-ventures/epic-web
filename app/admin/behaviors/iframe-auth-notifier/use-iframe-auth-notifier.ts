@@ -4,20 +4,25 @@ import { useEffect } from "react";
 import { authClient } from "@/lib/auth/client";
 
 export function useIframeAuthNotifier() {
-  const { data: session, isPending } = authClient.useSession();
-
   useEffect(() => {
-    if (isPending) return;
-    if (typeof window === "undefined") return;
     if (window.parent === window) return;
 
-    window.parent.postMessage(
-      {
-        type: "admin-auth-status",
-        isAdmin: session?.user?.role === "admin",
-        isAuthenticated: !!session,
-      },
-      "*"
-    );
-  }, [session, isPending]);
+    let lastKey: string | null = null;
+
+    return authClient.$store.atoms.session.subscribe((value) => {
+      if (value.isPending) return;
+
+      const isAdmin = value.data?.user?.role === "admin";
+      const isAuthenticated = !!value.data;
+      const key = `${isAdmin}:${isAuthenticated}`;
+
+      if (lastKey === key) return;
+      lastKey = key;
+
+      window.parent.postMessage(
+        { type: "admin-auth-status", isAdmin, isAuthenticated },
+        "*"
+      );
+    });
+  }, []);
 }
