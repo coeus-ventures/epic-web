@@ -12,11 +12,6 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen h-screen flex flex-col bg-background">
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `if(window.parent!==window)window.parent.postMessage({type:"admin-auth-status",isAdmin:${isAdmin}},"*")`,
-        }}
-      />
       {isAdmin ? (
         <div className="flex-1">{children}</div>
       ) : (
