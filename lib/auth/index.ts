@@ -35,10 +35,11 @@ export const auth = betterAuth({
   user: {
     additionalFields: {},
   },
+  trustedProxyHeaders: true,
   advanced: {
     defaultCookieAttributes: {
       sameSite: "lax",
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
     },
   },
 
