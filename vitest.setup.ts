@@ -20,7 +20,6 @@ vi.mock("server-only", () => ({}));
 
 // Set required environment variables for Better Auth
 process.env.NEXT_PUBLIC_BASE_URL ??= "http://localhost:8080";
-process.env.BETTER_AUTH_URL ??= "http://localhost:8080";
 process.env.BETTER_AUTH_SECRET ??= "test-secret-key-for-testing-only-32-chars-min";
 
 // Extract table names from Drizzle schema

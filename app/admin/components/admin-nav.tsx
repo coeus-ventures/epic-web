@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Users, LogOut, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth/client";
+import { signOutAction } from "@/app/admin/shared/actions/signout.action";
 
 const navItems = [
   {
@@ -22,7 +22,6 @@ const navItems = [
 
 export function AdminNav() {
   const pathname = usePathname();
-  const router = useRouter();
 
   return (
     <nav className="flex items-center justify-between w-full -ml-3">
@@ -48,17 +47,17 @@ export function AdminNav() {
           );
         })}
       </div>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-muted-foreground hover:text-foreground"
-        onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => {
-          router.refresh();
-        }}})}
-      >
-        <LogOut className="h-4 w-4 mr-2" />
-        Logout
-      </Button>
+      <form action={signOutAction}>
+        <Button
+          type="submit"
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground hover:text-foreground"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Logout
+        </Button>
+      </form>
     </nav>
   );
 }

@@ -1,8 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  allowedDevOrigins: ["*.http.cloud.morph.so", "*.proxy.epic.new"],
+  allowedDevOrigins: ["*.http.cloud.morph.so", "*.proxy.epic.new", "*.lvh.me"],
 };
 
 export default nextConfig;
