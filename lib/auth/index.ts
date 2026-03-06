@@ -8,21 +8,37 @@ import { headers } from "next/headers";
 import { admin } from "better-auth/plugins";
 import { magicLink } from "better-auth/plugins";
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8080";
+
+// Derive parent domain from NEXT_PUBLIC_BASE_URL for cross-subdomain auth.
+// The proxy puts sandboxes under the same domain as Behave:
+//   Production: 8080-xxx.proxy.epic.new → epic.new
+//   Dev:        8080-xxx.lvh.me:1234    → lvh.me
+//   Local:      localhost:8080           → (disabled)
+function getParentDomain(url: string): string {
+  try {
+    const { hostname } = new URL(url);
+    if (hostname === "localhost" || hostname === "127.0.0.1") return "";
+    const parts = hostname.split(".");
+    return parts.length > 2 ? parts.slice(-2).join(".") : "";
+  } catch {
+    return "";
+  }
+}
+
+const parentDomain = getParentDomain(baseUrl);
+
 export const auth = betterAuth({
   plugins: [
     admin({
       defaultRole: "user",
     }),
     magicLink({
-      expiresIn: 3600, // 60 minutes
-      // No-op sendMagicLink - token is stored in verification table
-      // and can be retrieved directly for preview auto-login
-      sendMagicLink: async () => {
-        // No-op: token is stored in verification table for auto-login
-      },
+      expiresIn: 3600,
+      sendMagicLink: async () => {},
     }),
     nextCookies(),
-  ], // make sure nextCookies is the last plugin in the array
+  ],
   database: drizzleAdapter(db, {
     provider: "sqlite",
     schema,
@@ -35,19 +51,31 @@ export const auth = betterAuth({
   user: {
     additionalFields: {},
   },
+  trustedOrigins: [
+    ...(parentDomain ? [`https://${parentDomain}`] : []),
+    "http://localhost:3000",
+  ],
   trustedProxyHeaders: true,
   advanced: {
+    cookiePrefix: "sandbox-auth",
+    useSecureCookies: true,
+    ...(parentDomain
+      ? {
+          crossSubDomainCookies: {
+            enabled: true,
+            domain: parentDomain,
+          },
+        }
+      : {}),
     defaultCookieAttributes: {
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      secure: true,
+      partitioned: true,
     },
   },
 
   secret: process.env.BETTER_AUTH_SECRET,
-  baseUrl:
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    process.env.BETTER_AUTH_URL ||
-    "http://localhost:8080",
+  baseURL: baseUrl,
 });
 
 export const getUser = cache(async () => {
