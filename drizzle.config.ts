@@ -28,7 +28,7 @@ const getDbCredentials = () => {
   if (environment === 'production') {
     return {
       url: getDatabaseUrl(),
-      authToken: process.env.TURSO_AUTH_TOKEN!,
+      authToken: process.env.TURSO_DATABASE_TOKEN!,
     };
   }
   return {
