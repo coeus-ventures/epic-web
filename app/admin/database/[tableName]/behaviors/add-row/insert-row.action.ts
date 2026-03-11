@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { db } from "@/db";
 import { sql } from "drizzle-orm";
+import { getUser } from "@/lib/auth";
 import {
   getTableByName,
   getTableMetadata,
@@ -19,6 +20,10 @@ export type InsertRowInput = z.infer<typeof inputSchema>;
 export async function insertRow(
   input: unknown
 ): Promise<Record<string, unknown>> {
+  const { user } = await getUser();
+  if (!user) throw new Error("Unauthorized - please sign in");
+  if (user.role !== "admin") throw new Error("Forbidden - admin role required");
+
   const { tableName, data } = inputSchema.parse(input);
 
   // Validate table exists

@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { db } from "@/db";
 import { sql } from "drizzle-orm";
+import { getUser } from "@/lib/auth";
 import {
   getTableByName,
   getTableMetadata,
@@ -16,6 +17,10 @@ const inputSchema = z.object({
 export type DeleteRowInput = z.infer<typeof inputSchema>;
 
 export async function deleteRow(input: unknown): Promise<void> {
+  const { user } = await getUser();
+  if (!user) throw new Error("Unauthorized - please sign in");
+  if (user.role !== "admin") throw new Error("Forbidden - admin role required");
+
   const { tableName, id } = inputSchema.parse(input);
 
   // Validate table exists

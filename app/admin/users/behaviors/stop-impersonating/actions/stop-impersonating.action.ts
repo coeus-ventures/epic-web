@@ -21,6 +21,13 @@ export async function stopImpersonating(): Promise<StopImpersonatingResult> {
       };
     }
 
+    if (currentUser.role !== 'admin') {
+      return {
+        success: false,
+        error: 'Forbidden - admin role required',
+      };
+    }
+
     // Call Better Auth Admin API to stop impersonating
     await auth.api.stopImpersonating({
       headers: await headers(),
