@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { db } from "@/db";
 import { sql } from "drizzle-orm";
+import { getUser } from "@/lib/auth";
 import {
   getTableByName,
   getTableMetadata,
@@ -42,6 +43,10 @@ export interface FetchTableDataResult {
 export async function fetchTableData(
   input: unknown
 ): Promise<FetchTableDataResult> {
+  const { user } = await getUser();
+  if (!user) throw new Error("Unauthorized - please sign in");
+  if (user.role !== "admin") throw new Error("Forbidden - admin role required");
+
   const { tableName, page, limit, sort, filter } = inputSchema.parse(input);
 
   // Validate table exists
