@@ -20,7 +20,7 @@ export function AdminAccessDenied() {
             Access Denied
           </CardTitle>
           <CardDescription className="text-zinc-600 dark:text-zinc-400">
-            You don&apos;t have permission to access this resource
+            You don't have permission to access this resource
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

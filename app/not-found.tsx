@@ -23,7 +23,7 @@ export default function NotFound() {
             This page is currently being built.
           </p>
           <p className="text-zinc-500 dark:text-zinc-500 text-lg">
-            We&apos;re working on it and it will be ready soon!
+            We're working on it and it will be ready soon!
           </p>
         </div>
       </div>
