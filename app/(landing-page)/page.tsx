@@ -94,8 +94,8 @@ export default function Home() {
               <Button size="lg" className="w-full sm:w-auto" nativeButton={false} render={<Link href="/auth/signin" />}>
                 Get Started
               </Button>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                View Documentation
+              <Button size="lg" variant="outline" className="w-full sm:w-auto" nativeButton={false} render={<Link href="/styleguide" />}>
+                View Design System
               </Button>
             </div>
           </section>
