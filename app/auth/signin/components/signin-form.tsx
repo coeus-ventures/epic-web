@@ -53,7 +53,7 @@ export default function SignInForm({ redirectURL }: { redirectURL: string }) {
       )}
 
       {/* Email Field */}
-      <div className="relative border border-dashed border-border rounded-lg p-3 bg-card/50">
+      <div className="relative border border-dashed border-border rounded-lg p-3 bg-background">
         <label htmlFor="email" className="sr-only">
           Email
         </label>
@@ -66,12 +66,12 @@ export default function SignInForm({ redirectURL }: { redirectURL: string }) {
           name="email"
           required
           placeholder="you@example.com"
-          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none font-mono text-sm"
+          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none text-sm"
         />
       </div>
 
       {/* Password Field */}
-      <div className="relative border border-dashed border-border rounded-lg p-3 bg-card/50">
+      <div className="relative border border-dashed border-border rounded-lg p-3 bg-background">
         <label htmlFor="password" className="sr-only">
           Password
         </label>
@@ -84,19 +84,19 @@ export default function SignInForm({ redirectURL }: { redirectURL: string }) {
           name="password"
           required
           placeholder="••••••••"
-          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none font-mono text-sm"
+          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none text-sm"
         />
       </div>
 
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full flex justify-center items-center gap-2 py-3 px-4 border-2 border-dashed border-warning bg-warning hover:bg-warning/90 focus:outline-none focus:ring-2 focus:ring-warning disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200"
+        className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-lg border-2 border-dashed border-primary bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200"
       >
         {isLoading ? (
           <>
             <svg
-              className="animate-spin h-5 w-5 text-foreground"
+              className="animate-spin h-5 w-5 text-primary-foreground"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -115,12 +115,12 @@ export default function SignInForm({ redirectURL }: { redirectURL: string }) {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            <span className="font-mono font-medium text-foreground">
+            <span className="font-medium text-primary-foreground">
               SIGNING IN...
             </span>
           </>
         ) : (
-          <span className="font-mono font-medium text-foreground">SIGN IN</span>
+          <span className="font-medium text-primary-foreground">SIGN IN</span>
         )}
       </button>
     </form>

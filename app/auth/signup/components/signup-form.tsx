@@ -78,7 +78,7 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
       )}
 
       {/* Email Field */}
-      <div className="relative border border-dashed border-border bg-card/30 p-1">
+      <div className="relative border border-dashed border-border bg-background p-1">
         <label htmlFor="email" className="sr-only">
           Email
         </label>
@@ -91,12 +91,12 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
           name="email"
           required
           placeholder="you@example.com"
-          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none font-mono text-sm"
+          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none text-sm"
         />
       </div>
 
       {/* Password Field */}
-      <div className="relative border border-dashed border-border bg-card/30 p-1">
+      <div className="relative border border-dashed border-border bg-background p-1">
         <label htmlFor="password" className="sr-only">
           Password
         </label>
@@ -109,12 +109,12 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
           name="password"
           required
           placeholder="Create a password (min. 8 characters)"
-          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none font-mono text-sm"
+          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none text-sm"
         />
       </div>
 
       {/* Confirm Password Field */}
-      <div className="relative border border-dashed border-border bg-card/30 p-1">
+      <div className="relative border border-dashed border-border bg-background p-1">
         <label htmlFor="confirmPassword" className="sr-only">
           Confirm Password
         </label>
@@ -127,7 +127,7 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
           name="confirmPassword"
           required
           placeholder="Confirm your password"
-          className="block w-full pl-10 pr-3 py-3 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none font-mono text-sm"
+          className="block w-full pl-10 pr-3 py-3 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none text-sm"
         />
       </div>
 
@@ -135,12 +135,12 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full flex justify-center items-center gap-2 py-3 px-4 bg-warning text-foreground font-mono font-bold border-2 border-dashed border-warning hover:bg-warning/90 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-lg bg-primary text-primary-foreground font-bold border-2 border-dashed border-primary hover:bg-primary/90 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <>
               <svg
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-foreground"
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-primary-foreground"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -164,7 +164,7 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
           ) : (
             <>
               CREATE ACCOUNT
-              <span className="text-warning/70">→</span>
+              <span className="text-primary-foreground/70">→</span>
             </>
           )}
         </button>

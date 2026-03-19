@@ -35,8 +35,8 @@ export default function SignInPage({ searchParams }: SignInPageProps) {
             <SignInForm redirectURL={redirectURL || HOME_URL} />
           </div>
 
-          <div className="mt-8 border border-border rounded-lg p-4 bg-secondary">
-            <p className="text-xs text-muted-foreground text-center">
+          <div className="mt-8 border border-border rounded-lg p-4 bg-card">
+            <p className="text-xs text-card-foreground/70 text-center">
               By signing in, you agree to our{" "}
               <Link
                 href="/terms"

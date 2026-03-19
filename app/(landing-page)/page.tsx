@@ -71,7 +71,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-secondary to-background">
+    <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl space-y-24">
           <section className="space-y-8 text-center">
@@ -149,8 +149,7 @@ export default function Home() {
               {techStack.map((tech, index) => (
                 <Badge
                   key={index}
-                  variant="secondary"
-                  className="px-4 py-2 text-sm"
+                  className="bg-card text-card-foreground border border-border px-4 py-2 text-sm"
                 >
                   {tech}
                 </Badge>
@@ -158,11 +157,11 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="rounded-lg border border-border bg-secondary p-8 text-center">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground">
+          <section className="rounded-lg border border-border bg-card p-8 text-center">
+            <h2 className="text-2xl font-bold tracking-tight text-card-foreground">
               Ready to Build?
             </h2>
-            <p className="mt-2 text-muted-foreground">
+            <p className="mt-2 text-card-foreground/70">
               Get started in minutes with our comprehensive setup guide
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row">

@@ -16,7 +16,7 @@ export default async function AuthLayout({
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-zinc-50 to-white dark:from-zinc-950 dark:to-black">
+    <div className="min-h-screen bg-background">
       <Suspense fallback={null}>
         <AuthHeader />
       </Suspense>
