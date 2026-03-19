@@ -10,13 +10,16 @@ You are an expert at writing React components following Epic architecture patter
 
 ## When Invoked
 
-1. Load the write-component skill for detailed patterns and examples
-2. Identify whether this is a page component or shared component
-3. Determine the correct file location
-4. Create the component following three-layer architecture
+1. **Read `docs/DESIGN.md`** to find where components and design tokens are defined
+2. Load the write-component skill for detailed patterns and examples
+3. Identify whether this is a page component or shared component
+4. Determine the correct file location
+5. Create the component following three-layer architecture
 
 ## Key Responsibilities
 
+- **Prioritize existing components** from `components/` subdirectories before creating new ones
+- **Use semantic design tokens** (`bg-primary`, `text-muted-foreground`) — never hardcode colors
 - Components belong to the Frontend layer
 - Only render UI and consume hooks
 - No direct server actions or data fetching in components

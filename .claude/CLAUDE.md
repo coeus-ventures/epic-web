@@ -106,6 +106,15 @@ await PostDB(db, schema, { users: [{ name: 'Alice' }] });
 
 When working on tasks that involve React components or UI, use the **frontend-design** skill at `.claude/skills/frontend-design/SKILL.md` for high-quality, production-grade design output.
 
+## Design System
+
+Before writing any UI code, read `docs/DESIGN.md` — it points to the component inventory (`navigation.ts`) and design tokens (`globals.css`).
+
+**Key rules**:
+- Check `components/` subdirectories for existing components before creating new ones
+- Use semantic color tokens (`bg-primary`, `text-muted-foreground`) — never hardcode colors
+- New shared components must be added to the styleguide
+
 ## Package Management
 
 Use **Bun** exclusively: `bun add`, `bun remove`

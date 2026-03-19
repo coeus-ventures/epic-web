@@ -16,8 +16,9 @@ Instructions: $ARGUMENTS
   - Fix [name of the bug] in [name of the behavior]
   - Change design of [name of the component/page] in [name of the page] to X
 
-1. Navigate to the page folder if it already exist to understand what is already implemented before writring the plan. Also look at the current schema.ts if necessary. Don't change anything, you are only exploring in this phase.
-2. Update the issue plan file with a a plan following the issue template. Only Update the issue file, don't start implementing yet. Instructions for your plan:
+1. **Check the design system**: Read `docs/DESIGN.md` to find where components and tokens are defined, then check those files to identify what can be reused. Note in the plan which components will be used vs. created.
+2. Navigate to the page folder if it already exist to understand what is already implemented before writring the plan. Also look at the current schema.ts if necessary. Don't change anything, you are only exploring in this phase.
+3. Update the issue plan file with a a plan following the issue template. Only Update the issue file, don't start implementing yet. Instructions for your plan:
    - If the behavior or component already exist focus on what needs to change.
    - Make only the most important test cases. The test cases should take inspiration from the Examples provided in the Functional Specification when applicable, even on the unit tests. 
 

@@ -22,6 +22,34 @@ Components:
 - Use TypeScript interfaces for props
 - MUST add `data-testid` attributes for testing
 
+## Before Writing a Component
+
+1. **Read `docs/DESIGN.md`** to find where components and tokens are defined
+2. **Check if it already exists**: Review `app/styleguide/navigation.ts`
+3. **Use existing primitives**: Compose from components in `components/` subdirectories
+4. **Use design tokens**: Use Tailwind semantic classes mapped to CSS variables
+
+## Design Token Usage
+
+**Read `app/globals.css`** to see all available semantic tokens.
+
+Use Tailwind classes mapped to CSS variables (e.g., `bg-primary`, `text-muted-foreground`, `border-border`).
+
+**Never use** hardcoded colors like `bg-gray-100`, `text-black`, `#ffffff`, or `rgb(...)`.
+
+The token names in `globals.css` map directly to Tailwind classes:
+- `--primary` → `bg-primary`, `text-primary`
+- `--muted-foreground` → `text-muted-foreground`
+- `--border` → `border-border`
+
+## When Creating New Shared Components
+
+If a component doesn't exist and should be reusable:
+1. Create it in `components/ui/[component-name].tsx`
+2. Add a styleguide page at `app/styleguide/components/[component-name]/page.tsx`
+3. Update `app/styleguide/navigation.ts` with the new component (include description)
+4. Follow the styleguide page pattern with "Notes for the AI" section
+
 ## Component Location
 
 ```
