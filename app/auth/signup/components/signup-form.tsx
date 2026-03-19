@@ -10,7 +10,7 @@ const LockIcon = () => (
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 20 20"
     fill="currentColor"
-    className="w-5 h-5 text-gray-400"
+    className="w-5 h-5 text-muted-foreground"
   >
     <path
       fillRule="evenodd"
@@ -26,7 +26,7 @@ const UserIcon = () => (
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 20 20"
     fill="currentColor"
-    className="w-5 h-5 text-gray-400"
+    className="w-5 h-5 text-muted-foreground"
   >
     <path
       fillRule="evenodd"
@@ -55,20 +55,20 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
     <form action={formAction} className="space-y-6">
       {state.error && (
         <div
-          className="border-2 border-dashed border-red-400 bg-red-50/30 px-4 py-3 relative"
+          className="border-2 border-dashed border-destructive/40 bg-destructive/10 px-4 py-3 relative"
           role="alert"
         >
-          <span className="text-xs font-mono text-red-400 absolute -top-2 -left-2 bg-gray-50 px-1">
+          <span className="text-xs font-mono text-destructive/70 absolute -top-2 -left-2 bg-secondary px-1">
             ERROR
           </span>
-          <div className="block font-mono text-red-700 text-sm mt-2">
+          <div className="block font-mono text-destructive text-sm mt-2">
             <span>{state.error}</span>
             {isAlreadyLoggedInError && (
               <button
                 type="button"
                 onClick={handleSignOut}
                 disabled={isPending}
-                className="ml-2 underline font-semibold hover:text-red-900 disabled:opacity-50 cursor-pointer"
+                className="ml-2 underline font-semibold hover:text-destructive/80 disabled:opacity-50 cursor-pointer"
               >
                 {isPending ? "Signing out..." : "Sign out"}
               </button>
@@ -78,7 +78,7 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
       )}
 
       {/* Email Field */}
-      <div className="relative border border-dashed border-gray-300 bg-white/30 p-1">
+      <div className="relative border border-dashed border-border bg-card/30 p-1">
         <label htmlFor="email" className="sr-only">
           Email
         </label>
@@ -91,12 +91,12 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
           name="email"
           required
           placeholder="you@example.com"
-          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder-gray-500 text-gray-900 focus:outline-none font-mono text-sm"
+          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none font-mono text-sm"
         />
       </div>
 
       {/* Password Field */}
-      <div className="relative border border-dashed border-gray-300 bg-white/30 p-1">
+      <div className="relative border border-dashed border-border bg-card/30 p-1">
         <label htmlFor="password" className="sr-only">
           Password
         </label>
@@ -109,12 +109,12 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
           name="password"
           required
           placeholder="Create a password (min. 8 characters)"
-          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder-gray-500 text-gray-900 focus:outline-none font-mono text-sm"
+          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none font-mono text-sm"
         />
       </div>
 
       {/* Confirm Password Field */}
-      <div className="relative border border-dashed border-gray-300 bg-white/30 p-1">
+      <div className="relative border border-dashed border-border bg-card/30 p-1">
         <label htmlFor="confirmPassword" className="sr-only">
           Confirm Password
         </label>
@@ -127,7 +127,7 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
           name="confirmPassword"
           required
           placeholder="Confirm your password"
-          className="block w-full pl-10 pr-3 py-3 bg-transparent border-none placeholder-gray-500 text-gray-900 focus:outline-none font-mono text-sm"
+          className="block w-full pl-10 pr-3 py-3 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none font-mono text-sm"
         />
       </div>
 
@@ -135,12 +135,12 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full flex justify-center items-center gap-2 py-3 px-4 bg-amber-400 text-gray-900 font-mono font-bold border-2 border-dashed border-amber-600 hover:bg-amber-500 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full flex justify-center items-center gap-2 py-3 px-4 bg-warning text-foreground font-mono font-bold border-2 border-dashed border-warning hover:bg-warning/90 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <>
               <svg
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900"
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-foreground"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -164,7 +164,7 @@ export default function SignUpForm({ redirectURL }: SignUpFormProps) {
           ) : (
             <>
               CREATE ACCOUNT
-              <span className="text-amber-700">→</span>
+              <span className="text-warning/70">→</span>
             </>
           )}
         </button>

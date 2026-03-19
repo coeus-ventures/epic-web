@@ -71,22 +71,22 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-zinc-50 to-white dark:from-zinc-950 dark:to-black">
+    <div className="min-h-screen bg-gradient-to-b from-secondary to-background">
       <main className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl space-y-24">
           <section className="space-y-8 text-center">
-            <div className="inline-block rounded-lg bg-zinc-100 px-3 py-1 text-sm dark:bg-zinc-800">
+            <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
               Production-Ready Boilerplate
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-6xl">
-                Next.js Web Template
+              <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
+                Epic Web Template
               </h1>
-              <p className="mx-auto max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
+              <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
                 A modern, type-safe web application starter with database
                 integration, testing infrastructure, and beautiful UI
-                components. Ship faster with confidence.
+                components, built by Epic.new. Ship faster with confidence.
               </p>
             </div>
 
@@ -102,10 +102,10 @@ export default function Home() {
 
           <section className="space-y-8">
             <div className="text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+              <h2 className="text-3xl font-bold tracking-tight text-foreground">
                 Everything You Need
               </h2>
-              <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+              <p className="mt-2 text-muted-foreground">
                 Built with modern tools and best practices
               </p>
             </div>
@@ -116,16 +116,16 @@ export default function Home() {
                 return (
                   <Card
                     key={index}
-                    className="border-zinc-200 dark:border-zinc-800"
+                    className="border-border"
                   >
                     <CardHeader>
-                      <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
-                        <Icon className="h-6 w-6 text-zinc-900 dark:text-zinc-50" />
+                      <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
+                        <Icon className="h-6 w-6 text-foreground" />
                       </div>
                       <CardTitle className="text-xl">{feature.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <CardDescription className="text-zinc-600 dark:text-zinc-400">
+                      <CardDescription className="text-muted-foreground">
                         {feature.description}
                       </CardDescription>
                     </CardContent>
@@ -137,10 +137,10 @@ export default function Home() {
 
           <section className="space-y-8">
             <div className="text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+              <h2 className="text-3xl font-bold tracking-tight text-foreground">
                 Powerful Tech Stack
               </h2>
-              <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+              <p className="mt-2 text-muted-foreground">
                 Industry-leading tools and frameworks
               </p>
             </div>
@@ -158,11 +158,11 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="rounded-lg border border-zinc-200 bg-zinc-50 p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
-            <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <section className="rounded-lg border border-border bg-secondary p-8 text-center">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">
               Ready to Build?
             </h2>
-            <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+            <p className="mt-2 text-muted-foreground">
               Get started in minutes with our comprehensive setup guide
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -175,8 +175,8 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="border-t border-zinc-200 dark:border-zinc-800">
-        <div className="container mx-auto px-4 py-8 text-center text-sm text-zinc-600 dark:text-zinc-400">
+      <footer className="border-t border-border">
+        <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
           <p>Built with Next.js, Drizzle ORM, and shadcn/ui</p>
         </div>
       </footer>

@@ -7,7 +7,7 @@ const LockIcon = () => (
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 20 20"
     fill="currentColor"
-    className="w-5 h-5 text-gray-400"
+    className="w-5 h-5 text-muted-foreground"
   >
     <path
       fillRule="evenodd"
@@ -23,7 +23,7 @@ const UserIcon = () => (
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 20 20"
     fill="currentColor"
-    className="w-5 h-5 text-gray-400"
+    className="w-5 h-5 text-muted-foreground"
   >
     <path
       fillRule="evenodd"
@@ -40,10 +40,10 @@ export default function SignInForm({ redirectURL }: { redirectURL: string }) {
     <form action={formAction} className="space-y-6">
       {state.error && (
         <div
-          className="bg-red-50 border-2 border-dashed border-red-400 text-red-700 px-4 py-3 relative font-mono"
+          className="bg-destructive/10 border-2 border-dashed border-destructive/40 text-destructive px-4 py-3 relative font-mono"
           role="alert"
         >
-          <span className="text-xs text-red-400 absolute top-1 left-2">
+          <span className="text-xs text-destructive/70 absolute top-1 left-2">
             ERROR
           </span>
           <div className="block sm:inline ml-2 mt-3 text-sm">
@@ -53,7 +53,7 @@ export default function SignInForm({ redirectURL }: { redirectURL: string }) {
       )}
 
       {/* Email Field */}
-      <div className="relative border border-dashed border-gray-400 rounded-lg p-3 bg-white/50">
+      <div className="relative border border-dashed border-border rounded-lg p-3 bg-card/50">
         <label htmlFor="email" className="sr-only">
           Email
         </label>
@@ -66,12 +66,12 @@ export default function SignInForm({ redirectURL }: { redirectURL: string }) {
           name="email"
           required
           placeholder="you@example.com"
-          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder-gray-400 text-gray-900 focus:outline-none font-mono text-sm"
+          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none font-mono text-sm"
         />
       </div>
 
       {/* Password Field */}
-      <div className="relative border border-dashed border-gray-400 rounded-lg p-3 bg-white/50">
+      <div className="relative border border-dashed border-border rounded-lg p-3 bg-card/50">
         <label htmlFor="password" className="sr-only">
           Password
         </label>
@@ -84,19 +84,19 @@ export default function SignInForm({ redirectURL }: { redirectURL: string }) {
           name="password"
           required
           placeholder="••••••••"
-          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder-gray-400 text-gray-900 focus:outline-none font-mono text-sm"
+          className="block w-full pl-10 pr-3 py-2 bg-transparent border-none placeholder:text-muted-foreground text-foreground focus:outline-none font-mono text-sm"
         />
       </div>
 
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full flex justify-center items-center gap-2 py-3 px-4 border-2 border-dashed border-amber-600 bg-amber-400 hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200"
+        className="w-full flex justify-center items-center gap-2 py-3 px-4 border-2 border-dashed border-warning bg-warning hover:bg-warning/90 focus:outline-none focus:ring-2 focus:ring-warning disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200"
       >
         {isLoading ? (
           <>
             <svg
-              className="animate-spin h-5 w-5 text-gray-900"
+              className="animate-spin h-5 w-5 text-foreground"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -115,12 +115,12 @@ export default function SignInForm({ redirectURL }: { redirectURL: string }) {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            <span className="font-mono font-medium text-gray-900">
+            <span className="font-mono font-medium text-foreground">
               SIGNING IN...
             </span>
           </>
         ) : (
-          <span className="font-mono font-medium text-gray-900">SIGN IN</span>
+          <span className="font-mono font-medium text-foreground">SIGN IN</span>
         )}
       </button>
     </form>
