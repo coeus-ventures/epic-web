@@ -1,13 +1,13 @@
 ---
 name: epic-cli
-description: Use the Epic CLI for project management, issue tracking, PR workflows, git worktrees, and debugging. Triggers on requests like "create a project", "start an issue", "work on PR", "create worktree", or "add debug statements".
+description: Use the Epic CLI for project management, issue tracking, agent orchestration, and spec generation. Triggers on requests like "create a project", "start an issue", "start an agent", "generate a spec", or "break spec into issues".
 ---
 
 # Epic CLI
 
 ## Overview
 
-Epic CLI is a project and issue management tool that integrates with GitHub. It handles project creation, issue tracking, PR workflows, git worktrees, and debugging utilities.
+Epic CLI is a project and issue management tool that integrates with GitHub. It handles project creation, issue tracking with markdown files, AI agent orchestration, spec generation, and design token application.
 
 ## Commands
 
@@ -19,6 +19,7 @@ Create new projects with GitHub repository:
 epic project new my-awesome-project
 epic project new org/repo-name
 epic project new my-web-app --web    # Use web template
+epic project new                     # Interactive mode
 ```
 
 ### Issue Management
@@ -33,62 +34,57 @@ epic project new my-web-app --web    # Use web template
 | `epic issue list closed` | List closed issues |
 | `epic issue show <id>` | Show issue details |
 | `epic issue get <id>` | Download issue from GitHub |
-| `epic issue sync <file>` | Sync markdown file with GitHub issue |
+| `epic issue sync push <id>` | Push local changes to GitHub |
+| `epic issue sync pull <id>` | Pull GitHub changes to local |
 | `epic issue start <id>` | Start working (creates worktree + tmux + claude) |
 | `epic issue start <id> --no-switch` | Create session but don't switch to it |
 | `epic issue start <id> --no-tmux` | Create worktree only (no tmux) |
 | `epic issue start <id> --branch` | Create branch only (no worktree) |
 | `epic issue assign <id> <user>` | Assign issue to user |
-| `epic issue close <id>` | Close issue and delete local file |
+| `epic issue close <id>` | Close issue and cleanup |
 
-Issue IDs can be: markdown file path, issue number, or prefix-number (e.g., `SCA-8`).
+Issue IDs can be: markdown file path, issue number, or prefix-number (e.g., `CLI-8`).
 
-### PR Management
+### Agent Management
 
-Start working on a pull request:
+Orchestrate AI agents that work on issues autonomously:
+
+| Command | Description |
+|---------|-------------|
+| `epic agent start <input>` | Start agent from issue file or prompt |
+| `epic agent list` | List all active agents |
+| `epic agent send <id> <message>` | Send message to running agent |
+| `epic agent pause <id>` | Pause agent (interrupt generation) |
+| `epic agent cancel <id>` | Cancel agent (full cleanup) |
+| `epic agent switch <id>` | Switch to agent's tmux session |
+
+Starting an agent with a prompt auto-creates an issue:
 
 ```bash
-epic pr start 359            # Creates worktree + tmux session
-epic pr start 359 --no-tmux  # Creates worktree only
+epic agent start docs/issues/cli-8.md       # Start with existing issue
+epic agent start "implement dark mode"      # Start with prompt (creates issue)
+epic agent start cli-8.md --no-tmux         # Skip tmux session
+epic agent start cli-8.md --no-switch       # Don't switch to tmux after creation
 ```
 
-### Worktree
+### Spec Generation
 
-Open a shell in a worktree directory:
+Generate project specs and break them into individual issues:
 
 ```bash
-epic worktree <branch-name>
+epic spec generate "A CLI tool for managing deployments"   # Generate spec from description
+epic spec generate                                         # Interactive mode
+epic spec break                                            # Break spec.md into issues
+epic spec break ./docs/spec.md                             # Break custom spec file
 ```
 
-### Ask (LLM Query)
+### Style Application
 
-Query an LLM for assistance:
-
-```bash
-epic ask "What is the purpose of git worktrees?"
-epic ask "Explain async/await" --model gpt-4o
-```
-
-Available models: gpt-4.1 (default), gpt-4.1-mini, gpt-4.1-nano, gpt-4o, o1-mini, o1
-
-### Debug
-
-Add/remove debug statements and diagnostic tools:
+Apply tweakcn design tokens to the project's globals.css:
 
 ```bash
-epic debug add <function-name> <file-path>      # Add debug statement
-epic debug remove <function-name> <file-path>   # Remove debug statement
-epic debug remove-all                           # Remove all console.debug from project
-epic debug check-gitignore                      # Check .gitignore for worktrees
-epic debug check-gitignore --fix                # Fix .gitignore if needed
-```
-
-### Draft
-
-Create draft files:
-
-```bash
-epic draft new
+epic style apply                      # Prompts for CSS input
+epic style apply "paste css here"     # Applies provided CSS tokens
 ```
 
 ## Issue File Format
@@ -102,23 +98,32 @@ Issues are stored in `docs/issues/` with pattern `{prefix}-{number}-{slug}.md`. 
 
 ## Common Workflows
 
-**Start working on an issue:**
+**Full issue lifecycle:**
 ```bash
-epic issue start SCA-8
+epic issue new "Add dark mode support"    # Create + sync to GitHub
+epic issue start CLI-8                    # Worktree + tmux + claude
+epic issue sync push CLI-8               # Push local changes
+epic issue close CLI-8                    # Close + cleanup
 ```
-This creates a worktree, tmux session, runs claude, and switches to the session.
 
-**Create and sync a new issue:**
+**Delegate work to an agent:**
 ```bash
-epic issue new "Add dark mode support"
+epic agent start docs/issues/cli-8.md    # Agent works on existing issue
+epic agent list                          # Check progress
+epic agent send cli-8 "fix the tests"   # Give agent feedback
+epic agent cancel cli-8                  # Stop if needed
+```
+
+**Spec-driven development:**
+```bash
+epic spec generate "E-commerce platform"  # Generate spec.md
+# Review and edit spec.md
+epic spec break                           # Creates individual issue files
+epic agent start docs/issues/ecom-1.md    # Start agents on each issue
 ```
 
 **Review open issues:**
 ```bash
 epic issue list open
-```
-
-**Work on a PR:**
-```bash
-epic pr start 359
+epic issue show CLI-8
 ```

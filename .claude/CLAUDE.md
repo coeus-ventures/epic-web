@@ -102,6 +102,10 @@ await PostDB(db, schema, { users: [{ name: 'Alice' }] });
 - Config: `lib/auth/index.ts`, Client: `lib/auth/client.ts`
 - Server-side: `getUser()` for cached session retrieval
 
+## Epic CLI
+
+When the user is planning a project, creating/managing issues, or running/executing issues, always use the **epic-cli** skill at `.claude/skills/epic-cli/SKILL.md`. This includes requests like "create a project", "start an issue", "generate a spec", "break spec into issues", "start an agent", or "run this issue".
+
 ## Frontend Design
 
 When working on tasks that involve React components or UI, use the **frontend-design** skill at `.claude/skills/frontend-design/SKILL.md` for high-quality, production-grade design output.
