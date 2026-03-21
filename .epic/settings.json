@@ -1,5 +1,5 @@
 {
-  "baseDirectory": "docs",
+  "baseDirectory": ".epic",
   "issuesDirectory": "issues",
   "draftsDirectory": "drafts"
 }
