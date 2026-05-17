@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 8080 --turbopack",
+    "preview": "next dev --turbopack -p",
     "dev:start": "pm2 start \"bun run dev\" --log ./logs/dev.log --name dev",
     "dev:logs": "pm2 logs dev",
     "dev:restart": "pm2 restart dev",
