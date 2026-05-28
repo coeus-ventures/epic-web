@@ -2,5 +2,5 @@
   "baseDirectory": ".epic",
   "issuesDirectory": "issues",
   "draftsDirectory": "drafts",
-  "types": "web"
+  "type": "web"
 }

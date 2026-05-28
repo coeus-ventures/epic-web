@@ -1,6 +1,6 @@
 ---
 name: write-behavior-test
-description: Write Playwright behavior tests (.spec.ts) that verify complete user workflows. Use when creating end-to-end tests for behaviors based on their specifications with Act:/Check: steps. Triggers on "write a behavior test", "create a spec test", or "test this behavior".
+description: 'Write Playwright behavior tests (.spec.ts) that verify complete user workflows. Use when creating end-to-end tests for behaviors based on their specifications with Act:/Check: steps. Triggers on "write a behavior test", "create a spec test", or "test this behavior".'
 ---
 
 # Write Behavior Test
