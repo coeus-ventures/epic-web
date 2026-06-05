@@ -4,9 +4,15 @@ import { getSessionCookie } from "better-auth/cookies";
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip middleware for excluded paths
+  // The old /home route is now the root Home page.
+  if (pathname === "/home") {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // Skip middleware for public paths. NOTE: "/" is the authenticated Home
+  // page now (the public landing page was removed), so it is intentionally
+  // NOT excluded here.
   if (
-    pathname === "/" ||
     pathname.startsWith("/auth") ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/admin") ||
@@ -40,8 +46,7 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - / (landing page)
+     * Match all request paths (including the root Home page "/") except for:
      * - /auth (authentication pages)
      * - /api (API routes)
      * - /_next/static (static files)
@@ -49,6 +54,6 @@ export const config = {
      * - /favicon.ico (favicon file)
      * - /public (public files)
      */
-    "/((?!$|auth|api|_next/static|_next/image|favicon.ico|public).*)",
+    "/((?!auth|api|_next/static|_next/image|favicon.ico|public).*)",
   ],
 };
