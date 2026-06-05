@@ -85,8 +85,9 @@ If a component doesn't exist and should be reusable:
 
 ```
 app/[role]/[page]/
-  page.tsx                    # Next.js page
-  state.ts                    # Jotai atoms
+  page.tsx                    # Server Component: prefetch + HydrationBoundary
+  page-content.tsx            # Client Component: dialog/UI state, consumes hooks
+  state.ts                    # Jotai atoms (UI state only)
   components/                 # Page-specific components
     component-name.tsx
 ```
@@ -108,8 +109,11 @@ Follow the Epic Component specification format from `references/specification.md
 ### Local
 - localState: Type
 
-### Shared
-- sharedState: Type - via atomName
+### Server data (TanStack Query)
+- items: Type[] - via useListItems() read hook
+
+### Shared UI state (Jotai)
+- uiState: Type - via atomName
 
 ## Children
 - ChildComponent
@@ -118,45 +122,80 @@ Follow the Epic Component specification format from `references/specification.md
 
 ## Implementation Pattern
 
+Reads and writes are **separate hooks**, so they're usually separate components:
+a list/table component consumes a `useQuery`-backed read hook; a dialog/form
+consumes a `useMutation`-backed hook. Don't expect one hook to return both
+`items` and `handleAction`.
+
+### Read / list component
+
 ```typescript
 'use client';
 
-import { useBehaviorName } from './behaviors/behavior-name/hooks/use-behavior-name';
+import { useListItems } from './behaviors/list-items/use-list-items';
 
-interface ComponentNameProps {
-  onSuccess?: (data: DataType) => void;
-}
+export function ItemsList() {
+  // isLoading from the read hook (isPending for always-on reads,
+  // isLoading for enabled-gated ones — the hook decides).
+  const { items, isLoading, error } = useListItems();
 
-export function ComponentName({ onSuccess }: ComponentNameProps) {
-  const { items, isPending, error, handleAction } = useBehaviorName();
-
-  if (isPending) {
-    return <div data-testid="loading-spinner">Loading...</div>;
-  }
-
-  if (error) {
-    return <div data-testid="error-message">{error}</div>;
-  }
+  if (isLoading) return <div data-testid="loading-spinner">Loading...</div>;
+  if (error) return <div data-testid="error-message">{error}</div>;
 
   return (
-    <div data-testid="component-container">
-      <div data-testid="items-list">
-        {items.map(item => (
-          <div key={item.id} data-testid={`item-card-${item.id}`}>
-            {item.name}
-          </div>
-        ))}
-      </div>
-      <button
-        data-testid="action-button"
-        onClick={() => handleAction()}
-      >
-        Action
-      </button>
+    <div data-testid="items-list">
+      {items.map((item) => (
+        <div
+          key={item.id}
+          data-testid={`item-card-${item.id}`}
+          // Optimistic rows carry `pending` — dim them until the server confirms.
+          className={item.pending ? 'opacity-50' : undefined}
+        >
+          {item.name}
+        </div>
+      ))}
     </div>
   );
 }
 ```
+
+### Mutation / dialog component
+
+`await handleX()` inside `try/catch` and toast — the rejected promise carries
+both validation and server errors. (`isLoading` disables the submit button.)
+
+```typescript
+'use client';
+
+import { useCreateItem } from './behaviors/create-item/use-create-item';
+import { toast } from 'sonner';
+
+export function CreateItemDialog({ open, onOpenChange }: Props) {
+  const { handleCreateItem, isLoading } = useCreateItem();
+
+  const onSubmit = async (data: unknown) => {
+    try {
+      await handleCreateItem(data);
+      toast.success('Item created');
+      onOpenChange(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to create item');
+    }
+  };
+
+  return (
+    <form data-testid="create-item-form" /* onSubmit -> onSubmit(...) */>
+      <input data-testid="item-name-input" name="name" />
+      <button data-testid="submit-button" type="submit" disabled={isLoading}>
+        {isLoading ? 'Creating…' : 'Create'}
+      </button>
+    </form>
+  );
+}
+```
+
+For an **on-demand read** in a dialog, pass the open state into the read hook so
+it only fetches when shown: `useItemSessions(item?.id, open)`.
 
 ## Test ID Guidelines
 
@@ -209,6 +248,15 @@ export const searchAtom = atom('');
 export const dialogAtom = atom<'add' | 'edit' | null>(null);
 ```
 
+## Hard-won practice notes
+
+- **Many components can call the same read hook — no prop-drilling.** Both the page-content (for the error banner) and the data table call `useListUsers()`; TanStack dedupes by query key, so it's one fetch and one shared cache entry. Pass UI callbacks down, not server data.
+- **A page with dialog `useState` cannot be a Server Component.** That's the reason for the split: `page.tsx` (Server, prefetch-only) wraps `*-content.tsx` (Client) that owns dialog/selection state. Don't try to add `useState` to the prefetching page.
+- **Server Components are prefetch-only.** Prefetch into the query client and `dehydrate`; never `fetchQuery` and render the result server-side — let the client `useQuery` own the data, or hydration and the client diverge.
+- **Mutations: catch the rejection, don't read `error`.** Dialogs do `await handleX(); toast.success()` / `catch { toast.error() }`. The hook's `error` field is only for inline display of the last error; the thrown rejection is the reliable path (it carries validation + server errors).
+- **`isLoading` comes from the hook, not the component.** Render the hook's flag as-is; don't recompute loading from `data == null` (that breaks with `keepPreviousData` and hydration).
+- **Optimistic rows carry a `pending` flag** — style them (dim/disable) so the UI reflects the in-flight state, and they reconcile on `onSettled`.
+
 ## Constraints
 
 - NEVER import database clients in components
@@ -217,6 +265,7 @@ export const dialogAtom = atom<'add' | 'edit' | null>(null);
 - NEVER store server state in Jotai - use the query cache
 - NEVER put business logic in components
 - NEVER access window object in server components
+- NEVER render query results server-side - Server Components only prefetch + hydrate
 - ALWAYS delegate state management to hooks
 - ALWAYS add data-testid for interactive and state elements
 
@@ -235,8 +284,11 @@ Renders the form used to create a new project with a name input and submit butto
 ### Local
 - (none - delegated to hook)
 
-### Shared
-- projects: Project[] - via useProjects atom
+### Server data (TanStack Query)
+- (writes only - optimistic update handled inside useCreateProject)
+
+### Shared UI state (Jotai)
+- dialogOpen: boolean - via dialogAtom
 
 ## Children
 - TextInput
