@@ -18,11 +18,11 @@ test.describe('Signin Flow', () => {
     // Submit form
     await page.locator('button[type="submit"]').click();
     
-    // Should redirect to dashboard after successful signin
-    await page.waitForURL('/home', { timeout: 10000 });
+    // Should redirect to the home page (/) after successful signin
+    await page.waitForURL('/', { timeout: 10000 });
 
-    // Verify we're on the dashboard
-    expect(page.url()).toContain('/home');
+    // Verify we're on the home page
+    expect(new URL(page.url()).pathname).toBe('/');
   });
 
 

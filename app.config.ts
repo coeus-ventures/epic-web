@@ -1,4 +1,4 @@
-export const HOME_URL = "/home";
+export const HOME_URL = "/";
 export const SIGNIN_URL = "/auth/signin";
 export const SIGNUP_URL = "/auth/signup";
 
