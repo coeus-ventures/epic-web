@@ -148,52 +148,89 @@ return (
 );
 ```
 
+### On-demand and paginated reads
+
+```typescript
+// On-demand read (e.g. a dialog): fetch only when opened.
+export function useItemSessions(id: string | undefined, open: boolean) {
+  const query = useQuery({ ...sessionsQuery(id ?? ''), enabled: open && !!id });
+  // Use query.isLoading (isPending && isFetching), NOT isPending — a disabled
+  // query is "pending" forever, but isLoading stays false until it actually runs.
+  return {
+    sessions: query.data ?? [],
+    isLoading: query.isLoading,
+    error: query.error ? (query.error as Error).message : null,
+  };
+}
+
+// Paginated read: keepPreviousData so rows don't blank while the next page loads.
+const query = useQuery({
+  ...listItemsQuery(params),
+  placeholderData: keepPreviousData,
+});
+```
+
 ### Mutation hook (`useMutation`, optimistic)
 
 Preserve a `{ handleX, isLoading, error }` shape so components stay untouched.
+**Validate once** at the call site, then pass already-parsed data to the
+mutation — `mutationFn` and `onMutate` both receive the typed value (no double
+`safeParse`).
 
 ```typescript
 'use client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { createItem } from './actions/create-item.action';
-import { itemsKeys } from '../list-items/list-items.query';
+import { itemsKeys, type ItemsListData } from '../list-items/list-items.query';
 
 const InputSchema = z.object({ name: z.string().min(1).max(100) });
+type CreateItemInput = z.infer<typeof InputSchema>;
 
 export function useCreateItem() {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: async (raw: unknown) => {
-      const parsed = InputSchema.safeParse(raw);
-      if (!parsed.success) {
-        throw new Error(parsed.error.issues.map((e) => e.message).join(', '));
-      }
-      const result = await createItem(parsed.data);
+    mutationFn: async (data: CreateItemInput) => {
+      const result = await createItem(data);
       if (result.error) throw new Error(result.error);
       return result.data;
     },
-    onMutate: async (raw) => {
+    onMutate: async (data: CreateItemInput) => {
       await queryClient.cancelQueries({ queryKey: itemsKeys.lists() });
-      const previous = queryClient.getQueriesData({ queryKey: itemsKeys.lists() });
-      const parsed = InputSchema.safeParse(raw);
-      if (parsed.success) {
-        queryClient.setQueriesData({ queryKey: itemsKeys.lists() }, (old: any) =>
+      // Snapshot EVERY cached list variation (pages/filters); restore all on error.
+      const previous = queryClient.getQueriesData<ItemsListData>({
+        queryKey: itemsKeys.lists(),
+      });
+      // setQueriesData patches the whole family via the lists() prefix. For a
+      // single record use setQueryData(itemsKeys.detail(id), ...).
+      queryClient.setQueriesData<ItemsListData>(
+        { queryKey: itemsKeys.lists() },
+        (old) =>
           old
-            ? { ...old, items: [{ ...parsed.data, id: `temp-${Date.now()}`, pending: true }, ...old.items] }
+            ? { ...old, items: [{ ...data, id: `temp-${Date.now()}`, pending: true }, ...old.items] }
             : old
-        );
-      }
+      );
       return { previous };
     },
-    onError: (_err, _vars, ctx: any) =>
-      ctx?.previous?.forEach(([key, data]: any) => queryClient.setQueryData(key, data)),
+    onError: (_err, _data, ctx) =>
+      ctx?.previous?.forEach(([key, data]) => queryClient.setQueryData(key, data)),
     onSettled: () => queryClient.invalidateQueries({ queryKey: itemsKeys.all }),
   });
 
+  // Validate ONCE; throw so the caller's `await` rejects and the dialog toasts.
+  const handleCreateItem = (raw: unknown) => {
+    const parsed = InputSchema.safeParse(raw);
+    if (!parsed.success) {
+      return Promise.reject(
+        new Error(parsed.error.issues.map((e) => e.message).join(', '))
+      );
+    }
+    return mutation.mutateAsync(parsed.data);
+  };
+
   return {
-    handleCreateItem: (raw: unknown) => mutation.mutateAsync(raw),
+    handleCreateItem,
     isLoading: mutation.isPending,
     error: mutation.error ? mutation.error.message : null,
   };
@@ -201,6 +238,19 @@ export function useCreateItem() {
 ```
 
 Mutations with no list representation (e.g. set-password, redirect-on-success) are plain mutations — no `onMutate`/`onError` cache work.
+
+## Hard-won practice notes
+
+Lessons that prevent real, hard-to-spot bugs:
+
+- **Preserve the hook's public return shape.** When migrating or refactoring, keep `{ handleX, isLoading, error }` byte-for-byte identical so consuming components need zero changes. This is the difference between touching one file and touching twenty.
+- **Prefetch params must equal the client's first render.** Export a `defaultParams` from `[name].query.ts`; use it for BOTH the server `prefetchQuery` and the param atoms' initial values. If they differ, hydration **silently misses** — no error, just a refetch and a loading flash. The key hash drops `undefined` fields but keeps `''`, so match exactly.
+- **`isPending` vs `isLoading`.** Always-enabled reads → `isPending`. `enabled`-gated reads → `isLoading` (a disabled query is "pending" forever).
+- **Refresh = invalidate, not refetch.** `queryClient.invalidateQueries({ queryKey })` is stable and refetches the whole family; `query.refetch()` captured in a `useCallback` dep is unstable (the query object is new each render).
+- **Validate once, at the call site.** Throw from the handler before `mutateAsync`; the component's `await … catch` surfaces it. The hook's `error` field then reflects only server/mutation errors — fine, because dialogs catch the rejection.
+- **`[name].query.ts` has NO `'use client'`.** It's imported by both the Server Component (prefetch) and the client hook, so keep it directive-free. Mutations import its key factory (`itemsKeys`) to invalidate/patch.
+- **Page split.** A page that renders a read is a Server Component (prefetch + `HydrationBoundary`) wrapping a `*-content.tsx` client component that holds dialog/UI state. A page with `useState`/dialogs can't itself be a Server Component.
+- **UI-state atoms shared across dynamic routes** (e.g. a global `sort` atom reused for `/table/[name]`) can desync from the per-route prefetch default — scope them per route or accept the extra client refetch.
 
 ## Route Consumption Patterns
 
@@ -318,10 +368,10 @@ export function useStreamingBehavior() {
 
 ## Key Patterns
 
-### 1. Validation First
-- Always validate input with Zod schemas before operations
-- Use `safeParse` and handle validation errors gracefully
-- Return early with error messages for invalid input
+### 1. Validation First (once, at the call site)
+- `safeParse` in the handler before `mutateAsync`; reject with a friendly message on failure
+- Pass the parsed value into the mutation so `mutationFn`/`onMutate` get typed data — don't re-parse in each
+- Components surface validation failures via the rejected promise (`await … catch`)
 
 ### 2. Optimistic Updates (via the query cache)
 - `onMutate`: cancel in-flight queries, snapshot with `getQueriesData`, apply the optimistic change with `setQueriesData` (temp id, `pending: true`)
@@ -329,8 +379,9 @@ export function useStreamingBehavior() {
 - `onSettled`: `invalidateQueries` to reconcile with the server
 
 ### 3. Error Handling
-- Surface `mutation.error` / `query.error` as a string; `isPending` for loading
-- Throw inside `mutationFn` so callers (`mutateAsync`) reject and components can `try/catch`
+- Surface `mutation.error` / `query.error` as a string; `isPending`/`isLoading` for loading
+- Throw inside `mutationFn` on `result.error` so `mutateAsync` rejects and components can `try/catch`
+- Validation errors reject from the handler (before the mutation), so they reach the same `catch`
 - Provide descriptive error messages
 
 ### 4. State Management
@@ -349,8 +400,9 @@ export function useStreamingBehavior() {
 - NEVER store server state in Jotai — use the query cache
 - NEVER call more than one backend entry point (action or route)
 - NEVER put business logic in hooks - that belongs in actions/routes
-- ALWAYS include both loading and error states (`isPending`/`error`)
-- ALWAYS validate input with Zod inside the `mutationFn`
+- ALWAYS include both loading and error states (`isPending`/`isLoading` + `error`)
+- ALWAYS validate input with Zod once at the call site, before `mutateAsync`
+- ALWAYS preserve the hook's public return shape when refactoring (keep components untouched)
 - ALWAYS make list mutations optimistic (`onMutate`/`onError`/`onSettled`); plain mutations otherwise
 - ALWAYS support cancellation for streaming behaviors (routes)
 
@@ -366,44 +418,45 @@ Entry point for the Create Project behavior. Validates input, performs optimisti
 - error: string | null
 
 ### Returns
-- handleCreateProject: (name: string) => Promise<void> - triggers the behavior
+- handleCreateProject: (input: unknown) => Promise<Project> - validates, then triggers the behavior
 - isLoading: boolean - submission in progress
 - error: string | null - current error message
 
 ### Dependencies
-- useSetAtom(projectsAtom) - for optimistic updates
+- useQueryClient() - for optimistic cache updates
+- projectsKeys - query-key factory from projects.query.ts (invalidate/patch)
 
 ### Example: Create project successfully
 
 #### PreState
-projectsAtom: []
+query [projects, list]: []
 isLoading: false
 error: null
 
 #### Steps
 * Call: handleCreateProject("New Project")
-* Returns: void
+* Returns: the created project
 
 #### PostState
-projectsAtom: [{ id: "1", name: "New Project", status: "draft", pending: false }]
+query [projects, list]: [{ id: "1", name: "New Project", status: "draft", pending: false }]
 isLoading: false
 error: null
 
 ### Example: Reject empty name
 
 #### PreState
-projectsAtom: []
+query [projects, list]: []
 isLoading: false
 error: null
 
 #### Steps
 * Call: handleCreateProject("")
-* Throws: "Name is required"
+* Rejects: "Name is required"
 
 #### PostState
-projectsAtom: []
+query [projects, list]: []   # rolled back
 isLoading: false
-error: "Name is required"
+error: null                  # validation error surfaced via the rejected promise
 ```
 
 ## Test Generation
