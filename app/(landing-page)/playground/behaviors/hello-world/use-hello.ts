@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { hello, HelloState } from "./hello.action";
 
 interface UseHelloReturn {
@@ -9,15 +9,21 @@ interface UseHelloReturn {
   isLoading: boolean;
 }
 
+const INITIAL_STATE: HelloState = { result: null, error: null };
+
+// Reference example of the TanStack Query mutation pattern for a form that
+// calls a server action and renders its result. The action returns its own
+// { result, error } state (it does not throw), so we surface mutation.data.
 export function useHello(): UseHelloReturn {
-  const [state, formAction, isLoading] = useActionState<HelloState, FormData>(
-    hello,
-    { result: null, error: null }
-  ) as [HelloState, (formData: FormData) => void, boolean];
+  const mutation = useMutation({
+    mutationFn: (formData: FormData) => hello(INITIAL_STATE, formData),
+  });
 
   return {
-    state,
-    formAction,
-    isLoading,
+    state: mutation.data ?? INITIAL_STATE,
+    formAction: (formData: FormData) => {
+      mutation.mutate(formData);
+    },
+    isLoading: mutation.isPending,
   };
 }

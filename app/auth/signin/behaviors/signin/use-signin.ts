@@ -1,4 +1,6 @@
-import { useActionState } from "react";
+"use client";
+
+import { useMutation } from "@tanstack/react-query";
 import { signIn } from "./actions/signin.action";
 
 interface SignInState {
@@ -12,15 +14,24 @@ interface UseSignInReturn {
 }
 
 export function useSignIn(redirectURL: string): UseSignInReturn {
-  const [state, formAction, isLoading] = useActionState<SignInState, FormData>(
-    (prevState: SignInState, formData: FormData) =>
-      signIn(prevState, formData, redirectURL),
-    { error: null }
-  );
+  const mutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      // The action redirects on success; on failure it returns { error }.
+      const result = await signIn({ error: null }, formData, redirectURL);
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
+  });
 
   return {
-    state,
-    formAction,
-    isLoading,
+    state: {
+      error: mutation.error ? (mutation.error as Error).message : null,
+    },
+    formAction: (formData: FormData) => {
+      mutation.mutate(formData);
+    },
+    isLoading: mutation.isPending,
   };
 }
