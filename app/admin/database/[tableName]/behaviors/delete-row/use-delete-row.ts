@@ -1,84 +1,66 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useSetAtom, useAtom } from "jotai";
-import { tableDataAtom, dialogAtom, type TableRow } from "../../state";
+import { useAtom } from "jotai";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { dialogAtom, type TableRow } from "../../state";
+import { tableDataKeys } from "../view-table/view-table.query";
+import type { FetchTableDataResult } from "../view-table/fetch-table-data.action";
 import { deleteRow } from "./delete-row.action";
 import { toast } from "sonner";
 
 export function useDeleteRow(tableName: string) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const setTableData = useSetAtom(tableDataAtom);
+  const queryClient = useQueryClient();
   const [dialog, setDialog] = useAtom(dialogAtom);
 
   const isDialogOpen = dialog.type === "delete";
   const selectedRow = dialog.type === "delete" ? dialog.row : null;
 
-  const handleDeleteRow = useCallback(
-    async (id: string | number) => {
-      setIsLoading(true);
-      setError(null);
-
-      // Store row for rollback
-      let deletedRow: TableRow | null = null;
-      let deletedIndex = -1;
-
-      // Optimistic update - remove row
-      setTableData((prev) => {
-        const index = prev.rows.findIndex((row) => row.id === id);
-        if (index !== -1) {
-          deletedRow = prev.rows[index];
-          deletedIndex = index;
-        }
-        return {
-          ...prev,
-          rows: prev.rows.filter((row) => row.id !== id),
-          total: prev.total - 1,
-        };
+  const mutation = useMutation({
+    mutationFn: (id: string | number) => deleteRow({ tableName, id }),
+    onMutate: async (id: string | number) => {
+      await queryClient.cancelQueries({
+        queryKey: tableDataKeys.table(tableName),
       });
-
-      try {
-        await deleteRow({ tableName, id });
-
-        setDialog({ type: null, row: null, isDuplicate: false });
-        toast.success("Row deleted successfully");
-      } catch (err) {
-        // Rollback optimistic update
-        if (deletedRow) {
-          setTableData((prev) => {
-            const rows = [...prev.rows];
-            rows.splice(deletedIndex, 0, deletedRow!);
-            return {
-              ...prev,
-              rows,
-              total: prev.total + 1,
-            };
-          });
-        }
-
-        const message = err instanceof Error ? err.message : "Failed to delete row";
-        setError(message);
-        toast.error(message);
-        throw err;
-      } finally {
-        setIsLoading(false);
-      }
+      const previous = queryClient.getQueriesData<FetchTableDataResult>({
+        queryKey: tableDataKeys.table(tableName),
+      });
+      queryClient.setQueriesData<FetchTableDataResult>(
+        { queryKey: tableDataKeys.table(tableName) },
+        (old) =>
+          old
+            ? {
+                ...old,
+                rows: old.rows.filter((row) => row.id !== id),
+                total: Math.max(0, old.total - 1),
+              }
+            : old
+      );
+      return { previous };
     },
-    [tableName, setTableData, setDialog]
-  );
-
-  const handleOpenDialog = useCallback(
-    (row: TableRow) => {
-      setDialog({ type: "delete", row, isDuplicate: false });
+    onSuccess: () => {
+      setDialog({ type: null, row: null, isDuplicate: false });
+      toast.success("Row deleted successfully");
     },
-    [setDialog]
-  );
+    onError: (err, _id, context) => {
+      context?.previous?.forEach(([key, data]) =>
+        queryClient.setQueryData(key, data)
+      );
+      toast.error(err instanceof Error ? err.message : "Failed to delete row");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: tableDataKeys.table(tableName) });
+    },
+  });
 
-  const handleCloseDialog = useCallback(() => {
+  const handleDeleteRow = (id: string | number) => mutation.mutateAsync(id);
+
+  const handleOpenDialog = (row: TableRow) => {
+    setDialog({ type: "delete", row, isDuplicate: false });
+  };
+
+  const handleCloseDialog = () => {
     setDialog({ type: null, row: null, isDuplicate: false });
-    setError(null);
-  }, [setDialog]);
+  };
 
   return {
     handleDeleteRow,
@@ -86,7 +68,7 @@ export function useDeleteRow(tableName: string) {
     handleCloseDialog,
     isDialogOpen,
     selectedRow,
-    isLoading,
-    error,
+    isLoading: mutation.isPending,
+    error: mutation.error ? mutation.error.message : null,
   };
 }

@@ -36,16 +36,8 @@ export interface DialogState {
   isDuplicate: boolean;
 }
 
-// Table data atom (now includes columns)
-export const tableDataAtom = atom<TableState>({
-  rows: [],
-  columns: [],
-  total: 0,
-  page: 1,
-  totalPages: 0,
-  isLoading: true,
-  error: null,
-});
+// NOTE: table rows/columns (server state) now live in the TanStack Query
+// cache (see view-table.query.ts). The atoms below are pure UI state.
 
 // Sort state atom
 export const sortAtom = atom<SortState | null>(null);
