@@ -52,12 +52,13 @@ Never call both. Never call multiple endpoints.
 
 ```
 app/[page]/behaviors/[behavior-name]/
-  hooks/
-    use-[behavior-name].ts    # Hook file
+  use-[behavior-name].ts      # React hook (directly in the behavior folder)
+  [behavior-name].query.ts    # Query options for a read (optional)
   actions/
     [action-name].action.ts   # Server action it calls
 ```
 
+- The hook lives directly in the behavior folder — there is NO `hooks/` subfolder
 - File names start with `use-` and match the exported function
 - Behavior folders use kebab-case
 

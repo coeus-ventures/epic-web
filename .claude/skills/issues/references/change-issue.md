@@ -15,8 +15,8 @@ Directory: `app/client/issues/[id]/behaviors/view-code/`
 - After: Atoms defined in `behaviors/view-code/state.ts`
 
 #### Affected Modules
-- hooks/use-code-tree.ts - Update import path
-- hooks/use-code-file.ts - Update import path
+- use-code-tree.ts - Update import path
+- use-code-file.ts - Update import path
 
 #### Moved Atoms
 - `codeTreeState`
@@ -47,7 +47,7 @@ Directory: `app/client/issues/[id]/behaviors/plan/`
 - After: Atoms defined in `behaviors/plan/state.ts`
 
 #### Affected Modules
-- view-plan/hooks/use-view-plan.ts - Update import path
+- view-plan/use-view-plan.ts - Update import path
 - edit-plan/use-editor.ts - Update import path
 
 #### Moved Atoms

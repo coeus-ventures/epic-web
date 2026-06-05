@@ -118,7 +118,7 @@ bun run test [action-name].action.test.ts
 
 ## 4. Create or Update Hooks
 
-**Location:** `app/[page]/behaviors/[behavior-name]/hooks/use-[behavior].ts`
+**Location:** `app/[page]/behaviors/[behavior-name]/use-[behavior].ts` (directly in the behavior folder — no `hooks/` subfolder)
 
 ### Instructions:
 **Load the hooks skill**
@@ -308,11 +308,11 @@ app/[page]/
 │   └── [Form].tsx
 └── behaviors/               # Grouped by user action
     └── [behavior-name]/     # e.g., "add-bookmark", "view-bookmarks"
-        ├── actions/         # Server actions
+        ├── use-[behavior].ts        # Client hook (directly here, no hooks/ subfolder)
+        ├── [behavior].query.ts      # Query options (reads)
+        ├── actions/                 # Server actions
         │   └── [action].action.ts
-        ├── hooks/           # Client hooks
-        │   └── use-[behavior].ts
-        └── tests/           # All tests for this behavior
+        └── tests/                   # All tests for this behavior
             ├── [action].action.test.ts
             ├── use-[behavior].test.tsx
             └── [behavior].spec.ts
