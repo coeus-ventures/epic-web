@@ -7,7 +7,7 @@ Brief overview of what this issue accomplishes.
 ## Behavior: [Name]
 
 [One paragraph describing the behavior in user-facing terms.]
-Directory: `app/[role]/[page]/behaviors/[behavior-name]/`
+Directory: `app/[page]/behaviors/[behavior-name]/`
 
 ### Rules
 

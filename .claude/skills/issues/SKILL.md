@@ -21,7 +21,7 @@ Brief overview of what this issue accomplishes.
 ## Behavior: [Name]
 
 [One paragraph describing the behavior in user-facing terms.]
-Directory: `app/[role]/[page]/behaviors/[behavior-name]/`
+Directory: `app/[page]/behaviors/[behavior-name]/`
 
 ### Rules
 
@@ -155,7 +155,7 @@ Additional implementation considerations
 Determine:
 - **Issue Title**: Clear description of the feature
 - **Behavior Name**: kebab-case name for the behavior
-- **Directory**: `app/[role]/[page]/behaviors/[behavior-name]/`
+- **Directory**: `app/[page]/behaviors/[behavior-name]/`
 - **File Path**: `.epic/issues/[prefix]-[number]-[slug].md`
 
 If information is missing, ask the user before proceeding.
@@ -170,7 +170,7 @@ Define **what** the system should do behaviorally.
 ## Behavior: [Name]
 
 [One paragraph describing the behavior in user-facing terms.]
-Directory: `app/[role]/[page]/behaviors/[behavior-name]/`
+Directory: `app/[page]/behaviors/[behavior-name]/`
 ```
 
 #### Rules (When/Then)

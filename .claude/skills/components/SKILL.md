@@ -84,7 +84,7 @@ If a component doesn't exist and should be reusable:
 ## Component Location
 
 ```
-app/[role]/[page]/
+app/[page]/
   page.tsx                    # Server Component: prefetch + HydrationBoundary
   page-content.tsx            # Client Component: dialog/UI state, consumes hooks
   state.ts                    # Jotai atoms (UI state only)

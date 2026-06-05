@@ -51,7 +51,7 @@ Never call both. Never call multiple endpoints.
 ## Hook Location and Naming
 
 ```
-app/[role]/[page]/behaviors/[behavior-name]/
+app/[page]/behaviors/[behavior-name]/
   hooks/
     use-[behavior-name].ts    # Hook file
   actions/
@@ -118,7 +118,7 @@ export function listItemsQuery(params: ListParams) {
 import { useQuery } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { listItemsQuery } from './list-items.query';
-import { pageAtom, searchAtom } from '@/app/[role]/[page]/state'; // UI state
+import { pageAtom, searchAtom } from '@/app/[page]/state'; // UI state
 
 export function useListItems() {
   // UI-state atoms feed the query key.

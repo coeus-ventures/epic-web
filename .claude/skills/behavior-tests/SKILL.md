@@ -31,7 +31,7 @@ Behavior tests:
 ## Test Location
 
 ```
-app/[role]/[page]/behaviors/[behavior-name]/
+app/[page]/behaviors/[behavior-name]/
   tests/
     [behavior-name].spec.ts
 ```

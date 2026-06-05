@@ -32,7 +32,7 @@ Actions:
 ## Action Location and Naming
 
 ```
-app/[role]/[page]/behaviors/[behavior-name]/
+app/[page]/behaviors/[behavior-name]/
   actions/
     [action-name].action.ts
 ```
