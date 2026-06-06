@@ -4,10 +4,10 @@ async function seed() {
   try {
     console.log("Starting seed process...");
 
-    // Generate fresh random-password users and write them to user.seed.ts
-    const users = await seedUsers({ regenerate: true });
+    // Generate random-password users on first run; reuse them on re-runs
+    const users = await seedUsers();
 
-    console.log(`Created ${users.length} test users:`);
+    console.log(`Seeded ${users.length} test users:`);
     for (const user of users) {
       console.log(`  ${user.email} / ${user.password}`);
     }

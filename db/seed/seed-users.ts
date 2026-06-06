@@ -53,17 +53,13 @@ ${records}
 /**
  * Create test users via Better Auth (properly hashed passwords).
  *
- * - `regenerate: true` (db:seed) always generates fresh random passwords and
- *   rewrites user.seed.ts.
- * - `regenerate: false` (seed-test) reuses the credentials already in
- *   user.seed.ts, only generating when the file is still empty.
+ * Generates 5 fresh random-password users only when user.seed.ts is still
+ * empty, writing the credentials back to the file. On every subsequent run it
+ * reuses the credentials already in the file, so db:seed is safe to re-run:
+ * existing users are skipped (already in the DB) and the file is left untouched.
  */
-export async function seedUsers({
-  regenerate,
-}: {
-  regenerate: boolean;
-}): Promise<UserSeed[]> {
-  const shouldGenerate = regenerate || userSeeds.length === 0;
+export async function seedUsers(): Promise<UserSeed[]> {
+  const shouldGenerate = userSeeds.length === 0;
   const targets = shouldGenerate ? generateUsers() : userSeeds;
 
   const created: UserSeed[] = [];
