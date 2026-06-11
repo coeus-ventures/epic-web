@@ -1,13 +1,13 @@
 ---
 name: verify
-description: Verify that an implemented issue works by exercising its behavior in a real browser with playwright-cli, checking every rule and scenario from the issue's specification. Use after implementing an issue, or when the user asks to verify/confirm a behavior works. Triggers on "verify this issue", "verify the behavior", or "check the issue works".
+description: Verify that an implemented issue works by exercising its behavior in a real browser with agent-browser, checking every rule and scenario from the issue's specification. Use after implementing an issue, or when the user asks to verify/confirm a behavior works. Triggers on "verify this issue", "verify the behavior", or "check the issue works".
 ---
 
 # Verify
 
 You are verifying that a web issue's implementation is working correctly by exercising it in the browser.
 
-Use `npx @playwright/cli@latest` to drive the browser. The application is running at `http://localhost:8080` (use the port the user specifies if different).
+Use `npx agent-browser` to drive the browser (fetched on demand — no install needed). The application is running at `http://localhost:8080` (use the port the user specifies if different).
 
 ## Workflow
 
@@ -18,56 +18,80 @@ Use `npx @playwright/cli@latest` to drive the browser. The application is runnin
    - **Each `#### <scenario-name>` under `### Scenarios`** — a worked walkthrough with optional `#### PreDB`, required `#### Steps` (using `Act:` / `Check:` keywords), and optional `#### PostDB`. Follow the Steps in order.
 4. Open the browser and navigate to the application.
 5. For each scenario, in order:
+   - **Assign a distinct test user to the scenario** (see [Test Users](#test-users)). For the Nth scenario, use `userSeeds[(N - 1) % userSeeds.length]`. Using a different user per scenario keeps the scenarios isolated so data created by one doesn't bleed into the next.
+   - **If the scenario requires an authenticated user, sign in as that assigned test user first** (via the app's signin page) before driving its steps. Skip this only when the scenario is itself an unauthenticated flow (e.g. signin/signup, public landing pages), in which case use the credentials directly as the scenario dictates.
    - If the scenario has `#### PreDB`, treat it as the assumed starting state — note any preconditions you can verify but don't try to mutate the database yourself.
-   - Drive the UI per the rule's `When:` conditions or the scenario's `Act:` steps. Use `snapshot` to see the page; use refs to `click`, `fill`, `type`, etc.
+   - Drive the UI per the rule's `When:` conditions or the scenario's `Act:` steps. Use `snapshot` to see the page; use the `@e…` refs it prints to `click`, `fill`, `type`, etc.
    - Confirm the rule's `Then:` outcomes or the scenario's `Check:` assertions match what's actually on screen / in network responses.
    - Record: PASS or FAIL, with a one-line reason.
 
-## Browser automation with playwright-cli
+## Test Users
+
+The application is seeded with test users in `db/seed/user.seed.ts`, exported as the `userSeeds` array. Each entry has `email`, `password`, `name`, and `userId`. Passwords are randomly generated per environment, so **read the credentials from that file** — never assume a default password.
+
+```bash
+cat db/seed/user.seed.ts
+```
+
+The database is assumed to be already seeded — **do not seed it yourself**. Never run any database seeding command during a verify run; seeding is the environment's responsibility, not yours.
+
+- If `userSeeds` is empty, the database has not been seeded — do **not** seed it. Instead, report every scenario that needs an authenticated user as `FAIL` with the reason `no seeded users available — run db seed before verify`, and continue scoring the run.
+- Assign one distinct user per scenario, round-robin by scenario order (`userSeeds[(N - 1) % userSeeds.length]`). This one-user-per-scenario assignment is the isolation mechanism that keeps data created by one scenario from bleeding into the next. With 5 seeded users, the first five scenarios each get a unique user.
+- Optionally pair each scenario with its own `npx agent-browser --session <name>` jar (e.g. `--session scenario-1`) so the assigned user and the browser storage stay isolated per scenario.
+- To authenticate, navigate to the signin page and fill the assigned user's `email` and `password`, then submit and confirm the redirect to the authenticated home page before proceeding with the scenario's steps.
+
+## Browser automation with agent-browser
+
+### Prerequisites
+
+No install step — `npx agent-browser` fetches the tool on first use. The one thing that is per-machine is the browser: the first time you use it, provision Chrome for Testing once (reused on later runs):
+
+```bash
+npx agent-browser install
+```
 
 ### Quick start
 
 ```bash
-# open new browser and navigate
-npx @playwright/cli@latest open http://localhost:8080
-# take a snapshot to see element refs
-npx @playwright/cli@latest snapshot
-# interact with the page using refs from the snapshot
-npx @playwright/cli@latest click e15
-npx @playwright/cli@latest type "search query"
-npx @playwright/cli@latest fill e5 "user@example.com"
-npx @playwright/cli@latest press Enter
+# open the browser and navigate
+npx agent-browser open http://localhost:8080
+# take a snapshot to see element refs (@e1, @e2, …)
+npx agent-browser snapshot
+# interact with the page using the @refs from the snapshot
+npx agent-browser click @e15
+npx agent-browser fill @e5 "user@example.com"
+npx agent-browser type @e7 "search query"
+npx agent-browser press Enter
 # take a screenshot if needed
-npx @playwright/cli@latest screenshot
+npx agent-browser screenshot
 # close the browser when done
-npx @playwright/cli@latest close
+npx agent-browser close
 ```
 
 ### Common commands
 
 - `open [url]` / `goto <url>` — open browser / navigate
-- `click <ref>` / `dblclick <ref>` / `hover <ref>` — pointer actions
-- `fill <ref> <text>` / `type <text>` / `select <ref> <val>` — input
-- `check <ref>` / `uncheck <ref>` — toggle a checkbox
+- `snapshot` — capture the page with `@e…` element refs (`snapshot -i` for interactive elements only)
+- `click @ref` / `hover @ref` — pointer actions
+- `fill @ref "<text>"` / `type @ref "<text>"` — input
 - `press <key>` — keyboard (Enter, ArrowDown, Tab, …)
-- `snapshot` — capture the page with element refs
-- `screenshot [ref]` — take a screenshot
-- `console [level]` / `network` — read console / network
+- `screenshot` — take a screenshot
+- `console` / `network requests` — read console / network
 - `close` — close the browser
 
 ### Refs go stale after every interaction
 
-Element refs (`e1`, `e2`, `e15`, …) are only valid until the next DOM update. After any
+Element refs (`@e1`, `@e2`, `@e15`, …) are only valid until the next DOM update. After any
 `click`, `fill`, `press`, or navigation, **all previous refs are invalid** — call `snapshot`
 again before using any ref on the updated page.
 
 ```bash
-npx @playwright/cli@latest fill e5 "user@example.com"
-npx @playwright/cli@latest snapshot   # required — refs have changed
-npx @playwright/cli@latest fill e8 "password"  # use refs from the new snapshot
+npx agent-browser fill @e5 "user@example.com"
+npx agent-browser snapshot   # required — refs have changed
+npx agent-browser fill @e8 "password"  # use refs from the new snapshot
 ```
 
-Always close the browser when done with `npx @playwright/cli@latest close`.
+Always close the browser when done with `npx agent-browser close`.
 
 ## Verification Report
 
@@ -75,12 +99,18 @@ After verifying all scenarios, print a report with exactly this shape:
 
 ```
 ── Verification Report ─────────────────
-[PASS] <scenario name>   <one-line reason>
-[FAIL] <scenario name>   <one-line reason>
+[PASS] <scenario name>  <one-line reason>
+[FAIL] <scenario name>  <one-line reason>
 ...
 
 Score: <passed>/<total> scenarios passed
 ```
+
+Grammar rules (so the report parses cleanly the way a test runner's output does):
+- One scenario per line. Start the line with the status token `[PASS]` or `[FAIL]` (no leading whitespace).
+- Separate `<scenario name>` from `<one-line reason>` with **two or more spaces** (or a tab). The name itself must not contain a run of 2+ spaces.
+- Keep each reason on a single line. Brackets, quotes, and slashes inside the reason are fine.
+- End with a single `Score: <passed>/<total> scenarios passed` line whose numbers match the report.
 
 If a scenario fails, the one-line reason should describe what was expected vs what actually
 happened (missing element, wrong text, error state, etc.). If any scenario fails, hand the
